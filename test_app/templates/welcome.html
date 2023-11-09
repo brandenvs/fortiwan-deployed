@@ -1,0 +1,161 @@
+<!--_Layout extended to implement generic resources, header, main & footer-->
+<!---->
+<!--Project: Django V | Author: Branden van Staden-->
+<!DOCTYPE html>
+<!--_Layout File Starts-->
+<html lang="en" data-bs-theme="dark">
+
+<!--Resources-->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--Render Page Title(Default)-->
+    <title>{% block title %}Welcome - Fortiwan{% endblock %}</title>
+    
+    <!--Static Folder Served Directly(client)-->
+    {% load static %}
+    
+    <!--(API)GCP WebFont's-->
+    <link href="https://fonts.googleapis.com/css?family=Lato:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&amp;display=swap" rel="stylesheet" />
+    
+    <!--(CDN)Bootstrap-v5.3.0-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous" />
+    
+    <!--Some Custom Styling-->
+    <style>
+        /* Custom CSS for the fixed footer */
+        .footer {
+            bottom: 0;
+            width: 100%;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+
+<!--Body-->
+<body class="p-3 m-0 border-0">
+
+    <!--Header-->
+    <header class="mb-3">
+        <!--Header-TopBar-->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex gap-2 align-items-center justify-content-end">
+                    <!--Only display relevant Btn's to user-->
+                    {% if user.is_authenticated %}
+                        <!--User Profile Btn-->
+                        <a href="{% url 'authentication:show_user' %}" class="btn btn-secondary btn-outline-info text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+                            </svg> {{ username|title }}
+                        </a>
+                        <!--User Logout Btn-->
+                        <a href="{% url 'authentication:logout' %}"class="btn btn-secondary btn-outline-info text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                            </svg> Logout
+                        </a>
+                    {% else %}
+                    <!--User Login Btn-->
+                        <a href="{% url 'authentication:login' %}" class="btn btn-secondary btn-outline-info text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0v-2z"/>
+                                <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+                            </svg> Login
+                        </a>
+                        <!--User Register Btn-->
+                        <a href="{% url 'authentication:create_new_user' %}" class="btn btn-secondary btn-outline-info text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+                                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg> Register
+                        </a>
+                    {% endif %}
+                    <!--Contact Btn-->
+                    <button type="button" class="btn btn-secondary btn-outline-info text-white">                        
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
+                            <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2H2Zm-2 9.8V4.698l5.803 3.546L0 11.801Zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586l-1.239-.757ZM16 9.671V4.697l-5.803 3.546.338.208A4.482 4.482 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671Z"/>
+                            <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034v.21Zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791Z"/>
+                        </svg> Contact
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-12 col-12">
+                <hr>
+            </div>
+        </div>     
+        
+        <!--Header-BottomBar-->
+        <div class="row align-items-center">
+            
+            <!--App Name-->
+            <div class="col-lg-6 col-md-col-6 col-12">
+                <p class="fs-2">{% block app_name %}Fortiwan Dashboard{% endblock %}</p>
+            </div>
+
+            <!--NavBar-->
+            <div class="col-lg-5 col-md-col-6 col-12">
+                <nav class="navbar navbar-expand-lg bg-body-primary p-2">
+                    <!--Mobile Responsive Drop Down Btn-->
+                    <button id="dropdownBtn" class="navbar-toggler btn btn-secondary" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#mainNavBar" aria-controls="mainNavBar"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z" />
+                        </svg>
+                    </button>
+
+                    <!--Mobile Responsive Collapsable Menu-->
+                    <div class="collapse navbar-collapse justify-content-right" id="mainNavBar">            
+                        <ul class="navbar-nav nav-underline nav-fill">
+                            <!--Navigational URL for Monitoring of VPN IPsec Tunnels-->
+                            <li class="nav-item">
+                                <a id="monitoringApp" class="nav-link disabled" aria-current="page" href="{% url 'monitoring:index' %}">
+                                    VPN IPsec Tunnels
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <!--Header Ends-->
+        </div>        
+    </header>
+    <hr>
+
+    <!--Body Container. View is Rendered Within Container.-->
+    <div class="container-fluid p-2 mb-3">
+        <main role="main" class="pb-3">            
+            <!--Render View-->
+            <p class="display-4"><em>Come back abit later to start browsing the Demo of the FortiOS REST API</em></p>
+        </main>
+    </div>
+    <hr>
+
+    <!--Footer-->
+    <footer class="footer container-fluid">
+        <div class="row align-items-center">
+            <hr>
+            <div class="col">
+                
+                <div class="text-end">
+                    &copy; 2023 Branden van Staden. All rights reserved.
+                    <em>A Bespoke FDN Solution utilizing FortiOS REST API</em>
+                </div>
+            </div>
+            
+        </div>      
+    </footer>
+
+    <!--(CDN)Bootstrap-v5.3.0-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    
+    <!--(CDN)JQuery-v3.6.0-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!--_Layout File Ends-->
+</body></html>
