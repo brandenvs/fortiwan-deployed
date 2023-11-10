@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['brandenvanstaden.co.za', '51.68.220.41', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
-    'auth',
+    'authentication',
     'test_app',
     'tunnel_monitor',
     'django.contrib.admin',
