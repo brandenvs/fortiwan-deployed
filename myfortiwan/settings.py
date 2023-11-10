@@ -79,11 +79,11 @@ WSGI_APPLICATION = 'myfortiwan.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fortiwandb',
-        'USER': 'fortiwanuser',
-        'PASSWORD': 'silureicky6#',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': 'frankfurt_de',
+        'USER': 'brands',
+        'PASSWORD': '?yeaB3@BU$72u0&S',
+        'HOST': '54.37.74.171',
+        'PORT': '5432',
     }
 }
 
