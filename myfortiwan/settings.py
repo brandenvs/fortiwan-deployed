@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'auth',
     'test_app',
     'tunnel_monitor',
-    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
