@@ -3,9 +3,9 @@ from django.urls import path
 from . import views
 
 # Define App Name
-app_name = 'test_app'
+app_name = 'fortiwan_monitor'
 
 # Define URL patterns - (app)'monitoring'
 urlpatterns = [
-    path('', views.index, name='index')
+    path('', views.index, name='home')
 ]

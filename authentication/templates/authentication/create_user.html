@@ -1,17 +1,19 @@
 <!--Fetch_Layout File-->
-{% extends 'shared/base.html' %}
+{% extends 'base.html' %}
 
 <!--Set_Layout Application Name-->
 {% block app_name %}User Authentication{% endblock %}
 
 <!--Set_Layout Page Title-->
-{% block title %}Create User - Auth{% endblock %}
+{% block title %}Fortiwan - Register[DISABLED!]{% endblock %}
 
 <!--Body Content-->
 {% block content %}
-    <div class="container">
+<p class="fs-3 fw-bolder">You do not have the permissions to register a new user!</p>
+<p class="fs-6 fw-light">If you believe that this message is a mistake? Please email <a href="mailto:branden-va-staden@outlook.com">Branden van Staden(click me).</a> </p>
+    <div class="container" hidden>
         <form action="{% url 'authentication:create_new_user' %}" class="form-control align-items-center" method="post">
-            {% csrf_token %}
+            <!--{% csrf_token %}-->
             <div class="row g-3 align-items-center">
                 <div class="col-12">
                     <p class="display-5">Create User 
@@ -39,7 +41,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-asterisk" viewBox="0 0 16 16">
                                         <path d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8 1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1z"/>
                                     </svg> <b>Unable to Create User</b> while Logged In!
-                                    <p class="bolder text-secondary"><em>To add a user - <b>Please <a href="{% url 'logout' %}">Logout</a> First</b></em></p>
+                                    <p class="bolder text-secondary"><em>To add a user - <b>Please <a href="{% url 'authentication:logout' %}">Logout</a> First</b></em></p>
                                 </p>
                             </div>
                         {% endif %}                              

@@ -98,7 +98,7 @@ def authenticate_user(request):
     else:
         # Login user 
         login(request, user)
-        return HttpResponseRedirect(reverse('monitoring:index'))
+        return HttpResponseRedirect(reverse('fortiwan_dashboard:home'))
 
 # Renders View & Model - User Profile
 def show_user(request):
@@ -114,6 +114,6 @@ def show_user(request):
 # Remove the authenticated user's ID from the request and flush their session data
 def logout_user(request):
     logout(request)
-    return redirect('authentication/login.html')
+    return HttpResponseRedirect(reverse('authentication:login'))
 # FILE-LOGIC END
 # Please Note:  '''All The Code in this File was Contributed by: Branden van Staden''' Thank you!

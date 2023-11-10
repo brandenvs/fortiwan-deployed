@@ -1,18 +1,15 @@
 <!--Fetch_Layout File-->
-{% extends 'shared/base.html' %}
-
-<!--Set_Layout Application Name-->
-{% block app_name %}User Authentication{% endblock %}
+{% extends 'base.html' %}
 
 <!--Set_Layout Page Title-->
-{% block title %}Login - Auth{% endblock %}
+{% block title %}Fortiwan - Login{% endblock %}
 
 <!--Body Content-->
 {% block content %}
 <div class="container">
     {% if user.is_authenticated %}
         <p class="display-5">You are already logged in!</p>
-        <a class="btn btn-outline-primary mb-3" href="{% url 'logout' %}">Logout?</a>
+        <a class="btn btn-outline-primary mb-3" href="{% url 'authentication:logout' %}">Logout?</a>
         <a class="btn btn-outline-primary mb-3" href="{% url 'authentication:show_user' %}">View Profile?</a>
     {% else %}
         <!--Login Form-->

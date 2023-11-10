@@ -1,18 +1,15 @@
 <!--Fetch_Layout File-->
-{% extends 'shared/base.html' %}
+{% extends 'base.html' %}
 
 <!--Set_Layout Application Name-->
 {% block app_name %}User Authentication{% endblock %}
 
 <!--Set_Layout Page Title-->
-{% block title %}User Details - Auth{% endblock %}
+{% block title %}{{ request.user.first_name }} Profile{% endblock %}
 
 <!--Body Content-->
 {% block content %}
-<h1>Welcome back, {{ firstname }}</h1>
-<ul>
-    <li>Your Username: {{ username }}</li>
-    <li>Your password<small>(This is how your password gets saved to the database)</small>:<br>{{ password }}</li>
-</ul>
-<a href="{% url 'logout' %}">Logout</a>
+<p class="fs-3 mb-0">Welcome {{ request.user.first_name|title }}! 
+    <p class="fs-6 ms-4">You are logged in as {{ request.user.username }}.</p>
+</p>
 {% endblock %}

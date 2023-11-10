@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TunnelMonitorConfig(AppConfig):
+class FortiwanDashboardConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'tunnel_monitor'
+    name = 'fortiwan_dashboard'
