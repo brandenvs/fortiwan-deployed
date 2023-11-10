@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['brandenvanstaden.co.za', '51.68.220.41', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'auth',
     'test_app',
     'tunnel_monitor',
     'users',
