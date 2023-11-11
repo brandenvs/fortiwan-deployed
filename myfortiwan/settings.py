@@ -10,12 +10,13 @@ SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['brandenvanstaden.co.za', '51.68.220.41', 'localhost']
+ALLOWED_HOSTS = ['brandenvanstaden.co.za', 'https://brandenvanstaden.co.za', '51.68.220.41', 'localhost', '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'authentication',
     'fortiwan_dashboard',
     'fortiwan_monitor',
@@ -42,20 +43,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-MIDDLEWARE = [
-
-
-    'django.middleware.security.SecurityMiddleware',
-
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
 # Security & HTTPS settings
 
 SESSION_COOKIE_SECURE = True
@@ -63,7 +50,7 @@ CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = False
 
 CORS_ALLOW_ALL_ORIGINS = True
-# CSRF_TRUSTED_ORIGINS = ['https://wazaware.co.za']
+CSRF_TRUSTED_ORIGINS = ['https://brandenvanstaden.co.za']
 
 ROOT_URLCONF = 'myfortiwan.urls'
 
