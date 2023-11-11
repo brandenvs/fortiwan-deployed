@@ -19,73 +19,34 @@
     <!--(CDN)Bootstrap-v5.3.0-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous" />
     
-    <!--Some Custom Styling-->
-    <style>
-        /* Custom CSS for the fixed footer */
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            padding: 10px 0;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap_custom.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'custom_stylesheet.css' %}">
+
+    <script>
+
+    </script>
 </head>
 
 <!--Body-->
-<body class="p-3 m-0 border-0">
+<body class="p-1 m-1 border-0">
     <!--Header-->
-    <header class="mb-3">
-        <div class="row">
-            <div class="col-md-6 col-12">
-                <!--Header-TopBar-->
-                <p class="display-4 mb-0">
-                    Fortiwan BCFA                    
-                </p>
-                <p class="fs-6 fw-light text-primary ms-2"><em>Prototype.v1.0</em></p>
-                <!--Only display relevant Btn's to user-->
-                {% if user.is_authenticated %}
-                <!--User Profile Btn-->
-                <a href="{% url 'authentication:show_user' %}" class="btn btn-secondary text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                        class="bi bi-person-lines-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z" />
-                    </svg> {% if request.user.username %} {{ request.user.username|title }} {% else %} <em>error: 'no username'</em>
-                    {% endif %}
-                </a>
-                <!--User Logout Btn-->
-                <a href="{% url 'authentication:logout' %}" class="btn btn-outline-danger text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
-                        <path fill-rule="evenodd"
-                            d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
-                    </svg> Logout
-                </a>
-                {% else %}
-                <!--User Login Btn-->
-                <a href="{% url 'authentication:login' %}" class="btn btn-secondary btn-outline-info text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                        class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0v-2z" />
-                        <path fill-rule="evenodd"
-                            d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
-                    </svg> Login
-                </a>
-                <!--User Register Btn-->
-                <a href="{% url 'authentication:create_new_user' %}" class="btn btn-secondary btn-outline-info text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                        class="bi bi-person-plus-fill" viewBox="0 0 16 16">
-                        <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                        <path fill-rule="evenodd"
-                            d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z" />
-                    </svg> Register
-                </a>
-                {% endif %}
+    <header class="mb-3 container">        
+        <div class="row d-flex align-items-center">
+            <div class="col-12">
+                <div class="bd-callout bd-callout-info p-2 m-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
+                        <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                        <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                    </svg> Prototype.v1.0
+                </div>
             </div>
-            <div class="col-md-6 col-12 d-flex align-items-center">
+            <div class="col-md-3 col-12 d-flex justify-content-start align-items-center">
+                <p class="fs-1 text-subtle-primary">
+                    FortiWAN BCFA                    
+                </p>
+            </div>
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
                 <ul class="nav nav-underline">
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == '/fortiwan-dashboard/' %}active{% endif %}" href="{% url 'fortiwan_dashboard:home' %}">Dashboard</a>
@@ -101,18 +62,43 @@
                     </li>
                 </ul>
             </div>
-        </div>     
+            <div class="col-md-3 d-flex justify-content-end align-items-center">
+                <div class="row">
+                    <div class="dropdown">
+                        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Manage Account">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                              </svg>
+                        </button>
+                        {% if user.is_authenticated %}                                
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" type="button">Manage Account</button></li>
+                                <li><button class="dropdown-item" type="button">Logout</button></li>         
+                            </ul>
+                        {% else %}
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" type="button">Login</button></li>
+                                <li><button class="dropdown-item" type="button">Contact Admin</button></li>         
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
     <hr>
-
-    <div class="row">
-        <div class="col-12">
-            <p class="fs-3 mb-0 text-white">{% block app_title %}Fortiwan BCFA{% endblock %}
-                <p class="fs-6 mt-0 text-white ms-4"><em>{% block app_subtitle %}Default subtitle{% endblock %}
-                </em></p>
-            </p>
-        </div>
+    
+    <div class="container" hidden> <!--!! Move this to pop notification !!-->
+        <div class="row">
+            <div class="col">
+                <p class="fs-3 mb-0 text-white">{% block app_title %}Fortiwan BCFA{% endblock %}
+                    <p class="fs-6 mt-0 text-white ms-4"><em>{% block app_subtitle %}Default subtitle{% endblock %}</em></p>
+                </p>
+            </div>
+        </div>                
     </div>
+
     <!--Body Container. View is Rendered Within Container.-->
     <div class="container-fluid p-2 mb-3">
         <main role="main" class="pb-3">            
@@ -133,6 +119,10 @@
     
     <!--(CDN)JQuery-v3.6.0-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="{% static 'custom_bootstrap.js' %}"></script>
+
+    <script src="{% static 'custom_js.js' %}"></script>
 
 <!--_Layout File Ends-->
 </body></html>

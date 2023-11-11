@@ -112,6 +112,16 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+CSS_ROOT = os.path.join(STATIC_ROOT, 'css/')
+
+JS_ROOT = os.path.join(STATIC_ROOT, 'js/')
+
+STATICFILES_DIRS = [
+    os.path.join(STATIC_ROOT, 'css/'),
+    os.path.join(STATIC_ROOT, 'js/'),
+]
 FORTIWAN_SECRET_TOKEN = os.environ.get('FORTIOS_REST_TOKEN')
+
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
