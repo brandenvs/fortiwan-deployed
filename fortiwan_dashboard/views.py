@@ -1,15 +1,16 @@
-import subprocess, requests, json
-from django.conf import settings
+import requests, json
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Tunnel
-from django.utils import timezone
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from myfortiwan.settings import FORTIWAN_SECRET_TOKEN
+
+app_name = 'fortiwan_config'
 
 def fetch_tunnels(request):
     # Global variables
     base_url = 'https://fortiwan.bcfa.co.za:444' # (ORIGINAL REMOVED!)
     # API secret token
-    api_secret = '?access_token=mH8HQ9kccjycm3tc6zbkQkjznmhb1x' # (ORIGINAL REMOVED!)
+    api_secret = f'?access_token=<{FORTIWAN_SECRET_TOKEN}' # (ORIGINAL REMOVED!)
 
     test_return = {}
     # Session setup
@@ -112,6 +113,7 @@ def fetch_tunnels(request):
     #     monitor_tunnels = Tunnel.objects.all()
     # return monitor_tunnels
 
+@login_required
 def index(request):    
     return render(request, 'fortiwan_dashboard.html')    
 
