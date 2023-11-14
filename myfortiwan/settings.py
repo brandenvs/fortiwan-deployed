@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,5 +133,9 @@ STATICFILES_DIRS = [
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-FORTIOS_REST_TOKEN = os.environ.get('FORTIOS_REST_TOKEN')
-FORTIWAN_BASE = os.environ.get('FORTIWAN_BASE')
+# Load environment variables from the .env file
+config_path = os.path.join(BASE_DIR, '.env')
+config._find_file(config_path)
+
+# Load ACCESS_TOKEN environment variable
+ACCESS_TOKEN = config('ACCESS_TOKEN')

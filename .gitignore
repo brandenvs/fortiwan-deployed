@@ -61,6 +61,7 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 static/admin/
+static/admin/js/
 static/staticfiles.json
 
 # Flask stuff:
@@ -122,9 +123,10 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-fortiwanenv/
+.env
 .env
 .venv
+fortiwanenv/
 env/
 venv/
 ENV/
