@@ -46,7 +46,7 @@
         
         $.ajax({
             type: "GET",
-            url: "{% url 'fortiwan_dashboard:fetch_tunnels' %}",
+            url: "{% url 'fortiwan_monitor:get_tunnels' %}",
             success: function (data) {
                 spinner.style.display = 'none';
                 showTunnels.style.display = 'block';

@@ -10,10 +10,13 @@ SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['brandenvanstaden.co.za', 'https://brandenvanstaden.co.za', '51.68.220.41', 'localhost', '127.0.0.1']
-
-
-# Application definition
+ALLOWED_HOSTS = [
+    'brandenvanstaden.co.za', 
+    'https://brandenvanstaden.co.za', 
+    '51.68.220.41', 
+    'localhost', 
+    '127.0.0.1'
+]
 
 INSTALLED_APPS = [
     'corsheaders',
@@ -43,14 +46,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Security & HTTPS settings
-
+# Cookies
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = False
 
+'''APPLICATION SECURITY SETTINGS'''
+# CORS Policy
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF Tokenization
 CSRF_TRUSTED_ORIGINS = ['https://brandenvanstaden.co.za']
+CSRF_COOKIE_SECURE = True
+
+# SSL Redirect
+SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = 'myfortiwan.urls'
 
@@ -121,7 +129,8 @@ STATICFILES_DIRS = [
     os.path.join(STATIC_ROOT, 'css/'),
     os.path.join(STATIC_ROOT, 'js/'),
 ]
-FORTIWAN_SECRET_TOKEN = os.environ.get('FORTIOS_REST_TOKEN')
-
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+FORTIOS_REST_TOKEN = os.environ.get('FORTIOS_REST_TOKEN')
+FORTIWAN_BASE = os.environ.get('FORTIWAN_BASE')
