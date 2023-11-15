@@ -10,7 +10,7 @@ import numpy
 def index(request):
     ipsec_vpn_tunnels = get_tunnels(request)
 
-    view_dict = {}    
+    view_dict = {} 
 
     for tunnel_name, tunnel_value in ipsec_vpn_tunnels.items():
         tmp_dict = {}        
@@ -18,8 +18,6 @@ def index(request):
         for key, value in tunnel_values.items():
             if key != 'proxyid':
                 tmp_dict.update({key: value})
-                if key == 'tun_id':
-                    print(value)
             else:     
                 for proxy in value:
                     proxy_status = proxy['status']
@@ -32,6 +30,7 @@ def index(request):
                     tmp_dict.update({'proxy_expire': proxy_expire})
                     tmp_dict.update({'proxy_incoming_bytes': round(proxy_incoming_bytes)})
                     tmp_dict.update({'proxy_outgoing_bytes': round(proxy_outgoing_bytes)})
-        view_dict.update({tunnel_name: tmp_dict})                 
-    return render(request, 'fortiwan_dashboard.html', {'tunnels': view_dict}) 
+        view_dict.update({tunnel_name: tmp_dict})
+        sorted_dict = dict(sorted(view_dict.items(), key=lambda x: x))
+    return render(request, 'fortiwan_dashboard.html', {'tunnels': sorted_dict}) 
 
