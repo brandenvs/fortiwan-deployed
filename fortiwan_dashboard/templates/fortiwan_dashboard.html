@@ -61,10 +61,10 @@
                             };
 
                             const {{ vpn_tunnel }} = document.getElementById('{{ vpn_tunnel }}').getContext('2d');
-                            {{ vpn_tunnel }} = new Chart({{ vpn_tunnel }}, config);
+                            {{ vpn_tunnel }} = new Chart({{ value.parent }}, config);
                         }                 
 
-                        createChart({{ value.parent }});
+                        createChart({{ vpn_tunnel }});
                     </script>
                 </div>
                 <span class="badge bg-success rounded-pill">STATUS {{ value.proxy_status|upper}}</span>
