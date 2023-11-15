@@ -12,61 +12,72 @@
 <!--Body Content-->
 {% block content %}
 <div class="row gap-2">
-<!-- IPsec VPN Tunnels -->
-<div class="col-md-6 col-12">
-    <p class="fs-2 mb-0">
-        IPsec VPN Tunnels Activity
+    <!-- IPsec VPN Tunnels -->
+    <div class="col-md-6 col-12">
+        <p class="fs-2 mb-0">
+            IPsec VPN Tunnels Activity
         <p class="fs-6 fw-light ms-2">Last refresh: 00:00</p>
-    </p>
-    <div id="spinner" class="spinner-border text-primary" role="status">
-        <span class="sr-only"></span>
+        </p>
+        {% if tunnels %}
+        <ol class="list-group list-group-numbered">
+            {% for vpn_tunnel, value in tunnels.items %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">
+                        {{ vpn_tunnel }} | {{ value.comments }}
+                    </div>
+                    <p class="fs-3">
+                    <p class="fs-6">Current Connections: {{ value.connection_count }}</p>
+                    <div>
+                        <canvas id="{{ vpn_tunnel }}"></canvas>
+                    </div>
+
+
+                    <script>
+                        var incoming_bytes = parseInt('{{ value.incoming_bytes }}', 10) / (1024 * 1024);
+                        var proxy_incoming_bytes = parseInt('{{ value.outgoing_bytes }}', 10) / (1024 * 1024);
+
+                        const {{ value.parent }} = {
+                            labels: ['Outgoing Traffic', 'Incoming Traffic'],
+                            datasets: [
+                                {
+                                    label: 'Incoming Traffic',
+                                    data: [incoming_bytes, proxy_incoming_bytes],
+                                    backgroundColor: [
+                                        'rgb(26, 26, 102)',
+                                        'rgb(102, 26, 26)',
+                                    ],
+                                },
+                            ],
+                        };
+
+                        let {{ vpn_tunnel }};
+
+                        function createChart(data) {
+                            const config = {
+                                type: 'polarArea',
+                                data: data,
+                                options: {},
+                            };
+
+                            const {{ vpn_tunnel }} = document.getElementById('{{ vpn_tunnel }}').getContext('2d');
+                            {{ vpn_tunnel }} = new Chart({{ vpn_tunnel }}, config);
+                        }                 
+
+                        createChart({{ value.parent }});
+                    </script>
+                </div>
+                <span class="badge bg-success rounded-pill">STATUS {{ value.proxy_status|upper}}</span>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <div id="spinner" class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+        {% endif %}
     </div>
-    <table class="table mt-3" id="show-tunnels" style="display: none;">
-        <thead>
-            <tr>
-                <th scope="col">Tunnel Name</th>
-                <th scope="col">Status</th>
-            </tr>
-        </thead>
-        <tbody id="tunnel-table-body"></tbody>
-    </table>
-    <div id="status"></div>
-</div>
-<div class="col-md-6 col-12"></div>
+    <div class="col-md-6 col-12"></div>
 
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var spinner = document.getElementById('spinner');
-        var showTunnels = document.getElementById('show-tunnels');
-        var tunnelTableBody = document.getElementById('tunnel-table-body');
-        
-        spinner.style.display = 'inline-block'; // Show the spinner
-        showTunnels.style.display = 'none';
-        
-        $.ajax({
-            type: "GET",
-            url: "{% url 'fortiwan_monitor:get_tunnels' %}",
-            success: function (data) {
-                spinner.style.display = 'none';
-                showTunnels.style.display = 'block';
-                
-                for (var tunnel in data) {
-                    if (data[tunnel] != '--') {
-                        var row = `<tr>
-                                        <td>${tunnel}</td>
-                                        <td>${data[tunnel]}</td>
-                                   </tr>`;
-                        tunnelTableBody.innerHTML += row; // Append row to the table body
-                    }
-                }
-            },
-            error: function (error) {
-                spinner.style.display = 'none';
-                console.error('Error:', error);
-            }
-        });
-    });
-</script>
-
 {% endblock %}

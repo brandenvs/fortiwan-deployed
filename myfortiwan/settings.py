@@ -126,9 +126,12 @@ CSS_ROOT = os.path.join(STATIC_ROOT, 'css/')
 
 JS_ROOT = os.path.join(STATIC_ROOT, 'js/')
 
+JSON_ROOT = os.path.join(STATIC_ROOT, 'json/')
+
 STATICFILES_DIRS = [
     os.path.join(STATIC_ROOT, 'css/'),
     os.path.join(STATIC_ROOT, 'js/'),
+    os.path.join(STATIC_ROOT, 'json/')
 ]
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
