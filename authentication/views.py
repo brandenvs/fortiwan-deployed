@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import User
 
 # Login User(View) Function - Handles Login Web Page. Passing User Object if User is Logged In.
-def user_login(request):    
+def user_login(request):
     if request.user.is_authenticated:
         current_user = request.user
         return render(request, 'authentication/login.html', {'current_user': current_user})

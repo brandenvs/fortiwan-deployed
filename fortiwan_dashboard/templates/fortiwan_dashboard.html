@@ -9,60 +9,112 @@
 {% block app_subtitle %}A WebApp derived from the FortiOS REST API.{% endblock %}
 
 {% block current_location %}Dashboard{% endblock %}
+
 <!--Body Content-->
 {% block content %}
 <div class="row gap-2">
     <!-- IPsec VPN Tunnels -->
     <div class="col-md-4 col-12">
         <p class="fs-2 mb-1">IPsec VPN Tunnels Activity</p>
+        <div id="spinner" class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
         <form>
             <div class="input-group">
                 <div class="form-floating">
                     <input type="text" class="form-control" id="floatingInput" placeholder="Search IPsec VPN Tunnels">
                     <label for="floatingInput">Search IPsec Tunnels</label>
-                </div>                
+                </div>
                 <button class="btn btn-outline-secondary" type="button" id="button-addon2">Go</button>
-              </div>
-        </form>    
-        
-        {% if tunnels %}
-        <ol class="list-group list-group-numbered mt-2">
-            {% for vpn_tunnel, value in tunnels.items %}
-            <li class="list-group-item d-flex justify-content-between align-items-start">
-                <div class="ms-2 me-auto">
-                    <div class="fw-bold">
-                        {{ vpn_tunnel }} | {{ value.comments }} | <span class="badge bg-success rounded-pill">STATUS {{ value.proxy_status|upper}}</span>
-                    </div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                              <th scope="col">Expires</th>
-                              <th scope="col">Incoming</th>
-                              <th scope="col">Outgoing</th>
-                              <th scope="col">Tunnel IP</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <th scope="row">{{ value.proxy_expire }}</th>
-                              <td>{{ value.proxy_incoming_bytes }} MB/s</td>
-                              <td>{{ value.proxy_outgoing_bytes }} MB/s</td>
-                              <td>{{ value.tun_id }}</td>
-                            </tr>
-                          </tbody>
-                      </table>
-
-                </div>                
-            </li>
-            {% endfor %}
-        </ol>
-        {% else %}
-        <div id="spinner" class="spinner-border text-primary" role="status">
-            <span class="sr-only"></span>
+            </div>
+        </form>
+        <div class="btn-group p-2 ps-0">
+            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                SORT
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Expiry</a></li>
+                <li><a class="dropdown-item" href="#">Incoming</a></li>
+                <li><a class="dropdown-item" href="#">Outgoing</a></li>
+            </ul>
         </div>
-        {% endif %}
+        <!-- End of template -->
+        <ol class="list-group list-group-numbered mt-2" id="data-container">
+            <div id="template" hidden>
+                <!-- The template for a single VPN tunnel -->
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">
+                            <span id="vpn_tunnel"></span> | <span id="comments"></span> | <span
+                                class="badge bg-success rounded-pill" id="proxy_status"></span>
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Expires</th>
+                                    <th scope="col">Incoming</th>
+                                    <th scope="col">Outgoing</th>
+                                    <th scope="col">Tunnel IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row" id="proxy_expire"></th>
+                                    <td><span id="proxy_incoming_bytes"></span> MB/s</td>
+                                    <td><span id="proxy_outgoing_bytes"></span> MB/s</td>
+                                    <td id="tun_id"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </li>
+            </div>
+        </ol>
     </div>
     <div class="col-md-6 col-12"></div>
-
 </div>
 {% endblock %}
+{% block javascript %}
+<script>
+    $(document).ready(function () {
+        // Show spinner initially
+        $('#spinner').show();
+
+        // Fetch data from the server using AJAX
+        $.ajax({
+            url: '{% url "fortiwan_monitor:get_tunnels" %}',  // Replace with the actual URL of your Django view
+            type: 'GET',
+            dataType: 'json',
+            success: function (dataList) {
+                // Hide spinner on success and display data
+                $('#spinner').hide();
+                $('#data-container').show();
+
+                // Loop through the list of VPN tunnels
+                $.each(dataList, function (vpn_tunnel, data) {
+                    // Clone the template for each VPN tunnel
+                    var $template = $('#template').clone();
+
+                    // Update HTML content with received data
+                    $template.find('#vpn_tunnel').text(vpn_tunnel);
+                    $template.find('#comments').text(data.comments);
+                    $template.find('#proxy_status').text('STATUS ' + data.proxy_status.toUpperCase());
+                    $template.find('#proxy_expire').text(data.proxy_expire);
+                    $template.find('#proxy_incoming_bytes').text(data.proxy_incoming_mb);
+                    $template.find('#proxy_outgoing_bytes').text(data.proxy_outgoing_mb);
+                    $template.find('#tun_id').text(data.tun_id);
+                    $template.removeAttr('hidden');
+
+                    // Append the cloned template to the container
+                    $('#data-container').append($template);
+                });
+            },
+            error: function () {
+                // Handle errors if necessary
+                console.error('Error fetching data from the server');
+            }
+        });
+    });
+</script>
+{% endblock javascript %}
