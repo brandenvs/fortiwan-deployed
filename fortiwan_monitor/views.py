@@ -30,6 +30,7 @@ def is_ajax(request):
 # [GET] IPsec VPN Tunnels
 @login_required
 def get_tunnels(request):
+    filter_result = 'expire'
     if request.method == "GET":
         ## [SETUP] ##
         session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
@@ -37,11 +38,11 @@ def get_tunnels(request):
         session.trust_env = False # Prevent Tracking
 
         base_url = 'https://fortiwan.bcfa.co.za:444'
-        api_secret = settings.ACCESS_TOKEN        
+        api_secret = settings.ACCESS_TOKEN      
+
         vpn_ipsec = 'api/v2/monitor/vpn/ipsec'
 
-        request_api = f'{base_url}/{vpn_ipsec}/?access_token={api_secret}'
-                
+        request_api = f'{base_url}/{vpn_ipsec}/?access_token={api_secret}'                
                     
         failed = False # Flag        
          # Build Request URL
@@ -70,6 +71,7 @@ def get_tunnels(request):
                 print(f'[ERROR] Received Response({response.status_code}) From - {base_url}/{vpn_ipsec}<access_token?>')
         else:
             print('[ERROR] Flag is TRUE!')
+
         # Deconstruct Initial JSON response
         vpn_tunnels = vpn_tunnels.get('results', [])
 
@@ -81,10 +83,13 @@ def get_tunnels(request):
             else:
                 continue
         
-        view_dict = {} 
-
+        view_dict = {}
+        high = 0    
+        
         for tunnel_name, tunnel_value in tunnel_dict.items():
             tmp_dict = {}
+            flag_high = False
+
             try:      
                 tunnel_values = dict(tunnel_value)
             except:
@@ -95,7 +100,7 @@ def get_tunnels(request):
                 else:     
                     for proxy in value:
                         proxy_status = proxy['status']
-                        proxy_expire = proxy['expire']
+                        proxy_expire = proxy['expire']                
                         proxy_incoming_bytes = proxy['incoming_bytes']
                         proxy_incoming_mb = proxy_incoming_bytes / (1024 * 1024)
                         proxy_outgoing_bytes = proxy['outgoing_bytes']
@@ -104,25 +109,15 @@ def get_tunnels(request):
                         tmp_dict.update({'proxy_expire': proxy_expire})
                         tmp_dict.update({'proxy_incoming_mb': round(proxy_incoming_mb)})
                         tmp_dict.update({'proxy_outgoing_mb': round(proxy_outgoing_mb)})
-            view_dict.update({tunnel_name: tmp_dict})         
-        # save_tunnels(request, view_dict)              
+                view_dict.update({tunnel_name: tmp_dict})  
+            # match (filter_result):
+            #     case 'expire':
+            #         for i in list(tmp_dict.keys()):
+            #             tmp_dict[i] 
+            #     case 'incoming_bytes':
+            #         vpn_ipsec_sort = 'sort=incoming_bytes,dsc'
+            #     case 'outgoing_bytes':
+            #         vpn_ipsec_sort = 'sort=outgoing_bytes,dsc'                
         return JsonResponse(view_dict)
     else:
         return HttpResponse("Forbidden!")
-
-def save_tunnels(request, data):
-    all_data = VPN_Tunnel.objects.all().delete()    
-    count = 0
-    for tunnel in data.values():
-        print(tunnel['name'])
-        count += 1
-        name = tunnel['name'],
-        connection_count = tunnel['connection_count'],
-        comments = tunnel['comments'],
-        tun_id = tunnel['tun_id'],
-        proxy_status = tunnel['proxy_status'],
-        proxy_expire = tunnel['proxy_expire'],
-        proxy_outgoing_mb = tunnel['proxy_outgoing_mb'],
-        proxy_incoming_mb = tunnel['proxy_incoming_mb'],
-        save_tunnel = VPN_Tunnel(count, name, connection_count, comments, tun_id, proxy_status, proxy_expire, proxy_outgoing_mb, proxy_incoming_mb)
-        save_tunnel.save()
