@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.core import serializers
-from .models import VPN_Tunnel
+from django.core.serializers import serialize
 
 fortiwan_secret_token = os.environ.get('FORTIOS_REST_TOKEN')
 
@@ -18,6 +18,19 @@ app_label = 'fortiwan_monitor'
 session = requests.Session()
 session.verify = False # Disable SSL Cert.
 session.trust_env = False # Prevent tracking.
+
+# Firewall object class
+class Firewall:
+    def __init__(self, ip, name, comment, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name):
+        self.ip = ip
+        self.name = name        
+        self.comment = comment
+        self.status = status
+        self.incoming_core = incoming_core
+        self.outgoing_core = outgoing_core
+        self.p2name = p2name
+        self.incoming_tunnel = incoming_tunnel
+        self.outgoing_tunnel = outgoing_tunnel
 
 @login_required
 def index(request):
@@ -48,6 +61,10 @@ def get_tunnels(request):
          # Build Request URL
         headers = {'Content-Type': 'application/json'} # Define Headers
         # Make the API call & handle exceptions(if any)
+
+        view_dict = {}
+        firewalls = []
+
         try:
             response = session.get(url=request_api, headers=headers)
         except requests.exceptions.RequestException as e:
@@ -62,62 +79,46 @@ def get_tunnels(request):
         
         if failed != True:
             if response.status_code == 200:
-                print(f'[SUCCESS] Received Response({response.status_code}) From - {request_api}')
+                print(f'[SUCCESS] Received Response({response.status_code}) From - {base_url}/{vpn_ipsec}?<access_token>')
                 try:
                     vpn_tunnels = response.json()
                 except Exception as e:
                     print(f"Unexpected JSON Error: {e}")
             else:
-                print(f'[ERROR] Received Response({response.status_code}) From - {base_url}/{vpn_ipsec}<access_token?>')
+                print(f'[ERROR] Received Response({response.status_code}) From - {base_url}/{vpn_ipsec}?<access_token>')
         else:
             print('[ERROR] Flag is TRUE!')
-
+        
         # Deconstruct Initial JSON response
         vpn_tunnels = vpn_tunnels.get('results', [])
-
-        tunnel_dict = {}
+        
+        
         for tunnel in vpn_tunnels:
-            proxy_objects = tunnel.get('proxyid', [])
-            if len(proxy_objects) > 0: # Check that the object has any vpn stats
-                tunnel_dict.update({tunnel.get('name'): tunnel})
-            else:
-                continue
+            vpn_tunnel = tunnel.get('proxyid', [])
+            if len(vpn_tunnel) > 0: # Check that the object has any vpn stats
+                firewall_obj = Firewall(
+                    ip=tunnel.get('tun_id'), 
+                    name=tunnel.get('name'), 
+                    comment=tunnel.get('comments'), 
+                    status=vpn_tunnel[0]['status'], 
+                    incoming_core=tunnel.get('incoming_bytes'), 
+                    outgoing_core=tunnel.get('outgoing_bytes'),
+                    p2name=vpn_tunnel[0]['p2name'],
+                    incoming_tunnel=vpn_tunnel[0]['incoming_bytes'],
+                    outgoing_tunnel=vpn_tunnel[0]['outgoing_bytes'])
+                firewalls.append(firewall_obj)
         
-        view_dict = {}
-        high = 0    
+    for firewall_obj in firewalls:
+        #  print(firewall_obj)    
+        view_dict.update({firewall_obj.name:{
+            'ip': firewall_obj.ip, 
+            'name': firewall_obj.name, 
+            'comment': firewall_obj.comment, 
+            'status': firewall_obj.status, 
+            'incoming_core': firewall_obj.incoming_core, 
+            'outgoing_core': firewall_obj.outgoing_core, 
+            'p2name': firewall_obj.p2name, 
+            'incoming_tunnel': firewall_obj.incoming_tunnel,
+            'outgoing_tunnel': firewall_obj.outgoing_tunnel}})
+    return JsonResponse(view_dict)
         
-        for tunnel_name, tunnel_value in tunnel_dict.items():
-            tmp_dict = {}
-            flag_high = False
-
-            try:      
-                tunnel_values = dict(tunnel_value)
-            except:
-                break
-            for key, value in tunnel_values.items():
-                if key != 'proxyid':
-                    tmp_dict.update({key: value})
-                else:     
-                    for proxy in value:
-                        proxy_status = proxy['status']
-                        proxy_expire = proxy['expire']                
-                        proxy_incoming_bytes = proxy['incoming_bytes']
-                        proxy_incoming_mb = proxy_incoming_bytes / (1024 * 1024)
-                        proxy_outgoing_bytes = proxy['outgoing_bytes']
-                        proxy_outgoing_mb = proxy_outgoing_bytes / (1024 * 1024)
-                        tmp_dict.update({'proxy_status': proxy_status})
-                        tmp_dict.update({'proxy_expire': proxy_expire})
-                        tmp_dict.update({'proxy_incoming_mb': round(proxy_incoming_mb)})
-                        tmp_dict.update({'proxy_outgoing_mb': round(proxy_outgoing_mb)})
-                view_dict.update({tunnel_name: tmp_dict})  
-            # match (filter_result):
-            #     case 'expire':
-            #         for i in list(tmp_dict.keys()):
-            #             tmp_dict[i] 
-            #     case 'incoming_bytes':
-            #         vpn_ipsec_sort = 'sort=incoming_bytes,dsc'
-            #     case 'outgoing_bytes':
-            #         vpn_ipsec_sort = 'sort=outgoing_bytes,dsc'                
-        return JsonResponse(view_dict)
-    else:
-        return HttpResponse("Forbidden!")

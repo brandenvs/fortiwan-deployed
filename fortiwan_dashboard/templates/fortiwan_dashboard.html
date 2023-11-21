@@ -55,7 +55,6 @@
             <table class="table table-striped ms-2">
                 <thead>
                     <tr>
-                        <th scope="col">Expires</th>
                         <th scope="col">Incoming</th>
                         <th scope="col">Outgoing</th>
                         <th scope="col">Tunnel IP</th>
@@ -63,8 +62,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope="row" id="proxy_expire"></th>
-                        <td><span id="proxy_incoming_bytes"></span> MB/s</td>
+                        <td scope="row"><span id="proxy_incoming_bytes"></span> MB/s</td>
                         <td><span id="proxy_outgoing_bytes"></span> MB/s</td>
                         <td id="tun_id"></td>
                     </tr>
@@ -89,21 +87,19 @@
                 // Hide spinner on success and display data
                 $('#spinner').hide();
 
-                var sortedDataList = Object.entries(dataList).sort((a, b) => b[1].proxy_expire - a[1].proxy_expire);
+                // var sortedDataList = Object.entries(dataList).sort((a, b) => b[1].vpn_tunnel - a[1].vpn_tunnel);
 
                 // Loop through the list of VPN tunnels
-                $.each(dataList, function (vpn_tunnel, data) {
+                $.each(dataList, function (index, data) {
                     // Clone the template for each VPN tunnel
                     var $template = $('#template').clone();
-
                     // Update HTML content with received data
-                    $template.find('#vpn_tunnel').text(vpn_tunnel);
-                    $template.find('#comments').text(data.comments);
-                    $template.find('#proxy_status').text('STATUS ' + data.proxy_status.toUpperCase());
-                    $template.find('#proxy_expire').text(data.proxy_expire);
-                    $template.find('#proxy_incoming_bytes').text(data.proxy_incoming_mb);
-                    $template.find('#proxy_outgoing_bytes').text(data.proxy_outgoing_mb);
-                    $template.find('#tun_id').text(data.tun_id);
+                    $template.find('#vpn_tunnel').text(data.name);
+                    $template.find('#comments').text(data.comment);
+                    $template.find('#proxy_status').text('STATUS ' + data.status.toUpperCase());
+                    $template.find('#proxy_incoming_bytes').text(data.incoming_tunnel);
+                    $template.find('#proxy_outgoing_bytes').text(data.outgoing_tunnel);
+                    $template.find('#tun_id').text(data.ip);
                     $template.removeAttr('hidden');
 
                     // Append the cloned template to the container
@@ -116,46 +112,46 @@
             }
         });
 
-        $('#proxy_expire').on('click', function (event) {
-            event.preventDefault();
-            $('#spinner').show();            
-            $('#tunnels-container').empty();
+        // $('#proxy_expire').on('click', function (event) {
+        //     event.preventDefault();
+        //     $('#spinner').show();            
+        //     $('#tunnels-container').empty();
 
-            // Fetch data from the server using AJAX
-            $.ajax({
-                url: '{% url "fortiwan_monitor:get_tunnels" %}',  // Replace with the actual URL of your Django view
-                type: 'GET',
-                dataType: 'json',
-                success: function (dataList) {
-                    // Hide spinner on success and display data
-                    $('#spinner').hide();
-                    $('#tunnels-container').show();
+        //     // Fetch data from the server using AJAX
+        //     $.ajax({
+        //         url: '{% url "fortiwan_monitor:get_tunnels" %}',  // Replace with the actual URL of your Django view
+        //         type: 'GET',
+        //         dataType: 'json',
+        //         success: function (dataList) {
+        //             // Hide spinner on success and display data
+        //             $('#spinner').hide();
+        //             $('#tunnels-container').show();
 
-                    var sortedDataList = Object.entries(dataList).sort((a, b) => b[1].proxy_expire - a[1].proxy_expire);
+        //             var sortedDataList = Object.entries(dataList).sort((a, b) => b[1].name - a[1].name);
 
-                    // Loop through the list of VPN tunnels
-                    $.each(sortedDataList, function (index, [vpn_tunnel, data]) {      
-                        var $template = $('#template').clone();
-                        // Update HTML content with received data
-                        $template.find('#vpn_tunnel').text(vpn_tunnel);
-                        $template.find('#comments').text(data.comments);
-                        $template.find('#proxy_status').text('STATUS ' + data.proxy_status.toUpperCase());
-                        $template.find('#proxy_expire').text(data.proxy_expire);
-                        $template.find('#proxy_incoming_bytes').text(data.proxy_incoming_mb);
-                        $template.find('#proxy_outgoing_bytes').text(data.proxy_outgoing_mb);
-                        $template.find('#tun_id').text(data.tun_id);
-                        $template.removeAttr('hidden');
+        //             // Loop through the list of VPN tunnels
+        //             $.each(sortedDataList, function (index, [vpn_tunnel, data]) {      
+        //                 var $template = $('#template').clone();
+        //                 // Update HTML content with received data
+        //                 $template.find('#vpn_tunnel').text(vpn_tunnel);
+        //                 $template.find('#comments').text(data.comments);
+        //                 $template.find('#proxy_status').text('STATUS ' + data.proxy_status.toUpperCase());
+        //                 // $template.find('#proxy_expire').text(data.proxy_expire);
+        //                 $template.find('#proxy_incoming_bytes').text(data.proxy_incoming_mb);
+        //                 $template.find('#proxy_outgoing_bytes').text(data.proxy_outgoing_mb);
+        //                 $template.find('#tun_id').text(data.tun_id);
+        //                 $template.removeAttr('hidden');
 
-                        // Append the cloned template to the container
-                        $('#tunnels-container').append($template);
-                    });
-                },
-                error: function () {
-                    // Handle errors if necessary
-                    console.error('Error fetching data from the server');
-                }
-            });
-        });
+        //                 // Append the cloned template to the container
+        //                 $('#tunnels-container').append($template);
+        //             });
+        //         },
+        //         error: function () {
+        //             // Handle errors if necessary
+        //             console.error('Error fetching data from the server');
+        //         }
+        //     });
+        // });
     });
 </script>
 {% endblock javascript %}
