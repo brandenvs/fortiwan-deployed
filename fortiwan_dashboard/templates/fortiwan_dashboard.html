@@ -12,75 +12,129 @@
 
 <!--Body Content-->
 {% block content %}
-<div class="row gap-2">
-    <!-- IPsec VPN Tunnels -->
-    <div class="col-md-4 col-12">
-        <p class="fs-2 mb-1">IPsec VPN Tunnels Activity</p>
-        <div id="spinner" class="spinner-border text-primary" role="status">
-            <span class="sr-only"></span>
-        </div>
-        <form>
-            <div class="input-group">
-                <div class="form-floating">
-                    <input type="text" class="form-control" id="floatingInput" placeholder="Search IPsec VPN Tunnels">
-                    <label for="floatingInput">Search IPsec Tunnels</label>
+<div class="row">
+    <div class="col">
+        <!-- Firewalls(w.Proxy Details) -->
+        <div class="row g-2" id="ipsec-container">
+            <div class="col-12">
+                <p class="fs-2 fw-medium mb-0">Firewalls IP/Sec Overview</p>
+                <p class="fs-5 ms-2 fw-light">Insights & Firewall's WAN Interface.</p>
+                <form>
+                    <div class="input-group">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput"
+                                placeholder="Search IPsec VPN Tunnels disabled">
+                            <label for="floatingInput">Search IPsec Tunnels</label>
+                        </div>
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Go</button>
+                    </div>
+                </form>
+                <div class="pt-2 pb-2">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" disabled>SORT</button>
                 </div>
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Go</button>
             </div>
-        </form>
-        <div class="btn-group p-2 ps-0">
-            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                SORT
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" id="proxy_expire">Expiry</a></li>
-                <li><a class="dropdown-item" href="#">Incoming</a></li>
-                <li><a class="dropdown-item" href="#">Outgoing</a></li>
-            </ul>
+            <div id="spinner" class="spinner-border text-primary" role="status">
+                <span class="sr-only"></span>
+            </div>
+            <!-- Firewall Template -->
+            <div class="col-md-6 col-12" id="template" hidden>
+                <div class="card w-100">
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="card-title" id="ipsec-name"></h5>
+                                    <div class="badge bg-success rounded-pill" id="ipsec-status"></div>
+                                    <hr>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <p class="card-text">
+                                    <h6 class="fs-6 fw-semibold mb-0">IPv4 Address:</h6>
+                                    <p class="fs-6 fw-light ms-2" id="ipsec-ip"></p>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <p class="card-text">
+                                    <h6 class="fw-semibold mb-0">WAN Interface:</h6>
+                                    <p class="text-warning" id="no-interface"><small><em>NO INTERFACE</em></small></p>
+                                    <div id="has-interface">
+                                        <p class="text-success mb-0"><span id="interface"></span> <a
+                                                href="#0">Switch?</a></p>
+                                    </div>
+
+                                    <div id="interface-controls" class="ms-2" hidden>
+                                        <input type="radio" class="btn-check" name="test2" id="tmp-mtn"
+                                            autocomplete="off">
+                                        <label class="btn" id="lbl-0" for="tmp-echo">MTN</label>
+                                        <input type="radio" class="btn-check" name="test1" id="tmp-echo"
+                                            autocomplete="off">
+                                        <label class="btn" id="lbl-1" for="tmp-echo">ECHO</label>
+                                    </div>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <hr>
+                                    <h6 class="fw-semibold mb-0">CORE TRAFFIC <span
+                                            class="small text-primary fw-light"><small><em>(Incoming /
+                                                    Outgoing)</small></em></span></h6>
+                                    <p class="fs-5 mb-0 ms-2 fw-light"><span id="ipsec-incoming-core"></span> MB/s</p>
+                                    <p class="fs-5 mb-0 ms-2 fw-light"><span id="ipsec-outgoing-core"></span> MB/s</p>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <hr>
+                                    <h6 class="fw-semibold mb-0">TUNNEL TRAFFIC <span
+                                            class="small text-primary fw-light"><small><em>(Incoming /
+                                                    Outgoing)</small></em></span></h6>
+                                    <p class="fs-5 mb-0 ms-2 fw-light"><span id="ipsec-incoming-tunnel"></span> MB/s</p>
+                                    <p class="fs-5 mb-0 ms-2 fw-light"><span id="ipsec-outgoing-tunnel"></span> MB/s</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" id="card-footer"></div>
+                </div>
+            </div>
         </div>
-        <!-- End of template -->
-        <ol class="list-group list-group-numbered mt-2" id="tunnels-container"></ol>
     </div>
-    <div class="col-md-6 col-12"></div>
+    <div class="col"></div>
 </div>
-<div id="template" hidden>
-    <!-- The template for a single VPN tunnel -->
-    <li class="list-group-item d-flex justify-content-center">
-        <div class="ms-2 me-auto">
-            <div class="fw-bold">
-                <span id="vpn_tunnel"></span> | <span id="comments"></span> | <span
-                    class="badge bg-success rounded-pill" id="proxy_status"></span>
+<div id="modal-template">
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#interface-modal" id="launch-modal" hidden>
+    </button>
+  
+    <!-- Modal -->
+    <div class="modal fade" id="interface-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modal-title">VPN IP/Sec Tunnel Interfaces</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modal-close"></button>
             </div>
-            <table class="table table-striped ms-2">
-                <thead>
-                    <tr>
-                        <th scope="col">Incoming</th>
-                        <th scope="col">Outgoing</th>
-                        <th scope="col">Tunnel IP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td scope="row"><span id="proxy_incoming_bytes"></span> MB/s</td>
-                        <td><span id="proxy_outgoing_bytes"></span> MB/s</td>
-                        <td id="tun_id"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="modal-body">
+                <p class="fs-6 fw-bolder text-warning" id="interface-from-to"></p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="modal-save">Save changes</button>
+            </div>
         </div>
-    </li>
+        </div>
+    </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
 <script>
     $(document).ready(function () {
         // Show spinner initially
         $('#spinner').show();
+        $('#has-interface').hide();
 
         // Fetch data from the server using AJAX
         $.ajax({
-            url: '{% url "fortiwan_monitor:get_tunnels" %}',  // Replace with the actual URL of your Django view
+            url: '{% url "fortiwan_monitor:get_tunnels" %}',
             type: 'GET',
             dataType: 'json',
             success: function (dataList) {
@@ -93,17 +147,64 @@
                 $.each(dataList, function (index, data) {
                     // Clone the template for each VPN tunnel
                     var $template = $('#template').clone();
-                    // Update HTML content with received data
-                    $template.find('#vpn_tunnel').text(data.name);
-                    $template.find('#comments').text(data.comment);
-                    $template.find('#proxy_status').text('STATUS ' + data.status.toUpperCase());
-                    $template.find('#proxy_incoming_bytes').text(data.incoming_tunnel);
-                    $template.find('#proxy_outgoing_bytes').text(data.outgoing_tunnel);
-                    $template.find('#tun_id').text(data.ip);
+
+                    $template.find('#ipsec-name').text(data.name + ' | ' + data.comment);
+
+                    $template.find('#ipsec-status').text('STATUS ' + data.status.toUpperCase());
+
+                    $template.find('#ipsec-ip').text(data.ip);
+
+                    $template.find('#ipsec-incoming-core').text(data.incoming_core);
+                    $template.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel);
+
+                    $template.find('#ipsec-outgoing-core').text(data.outgoing_core);
+                    $template.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel);
+
+                    var mtn_toggle_id = 'ipsec-mtn-' + data.name.toLowerCase();
+                    var echo_toggle_id = 'ipsec-echo-' + data.name.toLowerCase();
+
+                    var wan_interface = data.interface;
+                    console.log(wan_interface);
+
+                    $template.find('#tmp-mtn').attr('id', mtn_toggle_id);
+                    $template.find('#tmp-echo').attr('id', echo_toggle_id);
+
+                    $template.find('#lbl-0').attr('for', mtn_toggle_id);
+                    $template.find('#lbl-1').attr('for', echo_toggle_id);
+
+                    if (wan_interface == 'ECHO') {
+                        $template.find('#has-interface').show();
+                        $template.find('#interface').text('ECHO').show();
+                        $template.find('#no-interface').hide();
+
+                        var $modal = $('#modal-template').clone();
+
+                        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
+
+                        $modal.find('#launch-modal').attr('data-bs-target', interface_modal_id);
+                        $modal.find('#launch-modal').attr('title', interface_modal_id);
+                        $modal.find('#interface-modal').attr('id', interface_modal_id);
+                        // $modal.find('#launch-modal').text('Switch Interface to MTN?');
+                        $modal.find('#launch-modal').text('Switch Interface to MTN?').removeAttr('hidden')
+
+                        $modal.find('#interface-from-to').text('Are you sure you want to change interface from ECHO to MTN?');
+
+                        $template.find('#card-footer').append($modal);
+
+                    } else if (wan_interface == 'MTN') {
+                        $template.find('#has-interface').text('MTN').show();
+                        $template.find('#edit-model-btn').text('Switch Interface to ECHO');
+                        $template.find('#no-interface').hide();
+                    } else {
+                        $template.find('#no-interface').show();
+                        $template.find('#edit-model-btn').addClass('disabled');
+                    }
+
+                    // Remove the hidden Attribute for VPN/IPsec Tunnel
                     $template.removeAttr('hidden');
 
-                    // Append the cloned template to the container
-                    $('#tunnels-container').append($template);
+                    // Populate VPN/IPsec Container
+                    $('#ipsec-container').append($template);
                 });
             },
             error: function () {
