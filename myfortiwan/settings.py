@@ -130,8 +130,12 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Load environment variables from the .env file
-config_path = os.path.join(BASE_DIR, '.env')
-config._find_file(config_path)
+CONFIG_PATH = os.path.join(BASE_DIR, '.env')
+config._find_file(CONFIG_PATH)
 
-# Load ACCESS_TOKEN environment variable
+# Load environment variables
 ACCESS_TOKEN = config('ACCESS_TOKEN')
+API_KEY = config('API_KEY')
+PASSWORD = config('PASSWORD')
+CLIENT_ID = config('CLIENT_ID')
+INTERFACE_TOKEN = config('INTERFACE_TOKEN')

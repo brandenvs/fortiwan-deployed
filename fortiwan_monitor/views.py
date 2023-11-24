@@ -1,14 +1,9 @@
-import requests, json
+import requests, json, os
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import timezone
 from django.http import JsonResponse
-import os
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.core import serializers
-from django.core.serializers import serialize
+from myfortiwan.models import Firewall
 
 fortiwan_secret_token = os.environ.get('FORTIOS_REST_TOKEN')
 
@@ -17,22 +12,8 @@ app_label = 'fortiwan_monitor'
 # Session setup
 session = requests.Session()
 session.verify = False # Disable SSL Cert.
-session.trust_env = False # Prevent tracking.
-
-# Firewall object class
-class Firewall:
-    def __init__(self, ip, name, comment, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface):
-        self.ip = ip
-        self.name = name        
-        self.comment = comment
-        self.status = status
-        self.incoming_core = incoming_core
-        self.outgoing_core = outgoing_core
-        self.p2name = p2name
-        self.incoming_tunnel = incoming_tunnel
-        self.outgoing_tunnel = outgoing_tunnel
-        self.interface = interface
-
+session.trust_env = False # Prevent tracking.   
+     
 @login_required
 def index(request):
     return render(request, 'fortiwan_monitor.html')
@@ -133,18 +114,14 @@ def get_interface(request): # NOTE I must create a API CAll & POST function
         session.trust_env = False # Prevent Tracking
 
         base_url = 'https://fortiwan.bcfa.co.za:444'
-        api_secret = '--'     
+        api_secret = settings.INTERFACE_TOKEN    
 
-        vpn_ipsec = f'api/v2/cmdb/vpn.ipsec/phase1-interface'
-
-        request_api =  'https://fortiwanlm.bcfa.co.za:444/api/v2/cmdb/vpn.ipsec/phase1-interface/BCFA_Teraco?access_token=--' # f'{base_url}/{vpn_ipsec}/?access_token={api_secret}'                
+        request_api = f'https://fortiwanlm.bcfa.co.za:444/api/v2/cmdb/vpn.ipsec/phase1-interface/BCFA_Teraco?access_token={api_secret}'
                     
         failed = False # Flag        
          # Build Request URL
         headers = {'Content-Type': 'application/json'} # Define Headers
-        # Make the API call & handle exceptions(if any)
 
-        view_dict = {}
         vpn_interface = None
 
         try:
