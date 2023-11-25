@@ -2,11 +2,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from authentication.models import UserProfile
+from authentication.models import APIUser
 
 # Custom UserProfile Model Called: UserProfile(default: see models.py)
 class UserProfileInLine(admin.StackedInline):
-    model = UserProfile
+    model = APIUser
     can_delete = False
     verbose_name_plural = "user"
 
