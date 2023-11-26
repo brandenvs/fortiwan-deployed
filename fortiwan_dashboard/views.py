@@ -8,7 +8,7 @@ def index(request):
     # Check User is Logged In
     if request.user.is_authenticated:
         # Get Bearer Token
-        api_obj = get_token(request)
+        get_token(request)
 
         # bearer_token = os.getenv('BEARER_TOKEN')
         # print(f'YOUR BEARER TOKEN: {bearer_token}') NOTE TEST PURPOSES
