@@ -2,6 +2,67 @@ import requests, time
 from django.conf import settings
 from authentication.models import APIUser
 
+# Check for API User
+def get_apiuser(request):
+    no_api_user = False
+    try:
+        api_user = APIUser.objects.filter(user=request.user)
+        if api_user.get().user.username == None:
+            no_api_user = True
+    except Exception as e:
+        no_api_user = True
+    
+    if no_api_user:
+        print(f'[OPERATION-REQUIRED] No API User Found for: {request.user.username}...\n')
+        return 404
+    
+    print('[SUCCESS] Found API User!--USERNAME: ', api_user.get().user.username, end='\n')
+    return api_user
+
+# Check if Token has Expired
+def has_expired(api_user):
+    existed_for = time.time() - api_user.get().issued_time        
+    if existed_for >= 3700:
+        print('[OPERATION-REQUIRED] Your Bearer Token has Expired-- Do not worry!\nATTEMPTING REFRESHING OF BEARER TOKEN...\n')
+        return True
+    else:
+        print('[SUCCESS] Current API User Bearer Token is VALID!')
+        return False
+
+# Call FortiAuthenticator to Refresh API User's Token
+def refresh_token(api_user):
+    # Get API User Refresher Token from Db
+    refresh_token = api_user.get().refresh_token
+
+    # Define FortiAuthentication API Call
+    auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/" # [auth_URL]
+
+    # Define Request Headers
+    headers = {
+        'Content-Type': 'application/json',
+    }
+
+    # Define JSON Payload
+    payload = {            
+        'client_id': settings.CLIENT_ID,
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token
+    }
+    session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
+    session.verify = False # Disable Verification
+    session.trust_env = False # Prevent Tracking
+    
+    # Setup Session
+    # Calls FortiAuthenticator API POST Request        
+    try:
+        response_refresh = session.request('post', auth_url, headers=headers, json=payload, verify=False)
+        if response_refresh.status_code == 200:
+            print('[SUCCESS] FortiAuthenticator Issued a API User Refreshed Bearer Token!\n--', f'RESPONSE STATUS CODE: {response_refresh.status_code}')
+        else:
+            print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nRESPONSE STATUS CODE: {response_refresh.status_code}')
+    except Exception as e:
+        print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nPYTHON EXCEPTION: {e}\n\nRESPONSE STATUS CODE: {response_refresh.status_code}')
+
 # GET BEARER TOKEN
 def get_token(request):
     """Obtain a Bearer Token for authenticated requests.
@@ -15,16 +76,23 @@ def get_token(request):
     :return: A Bearer Token string if authentication is successful, otherwise None.
 
     :raises: Exception if an unexpected error occurs during the API call."""
+    # Check for API User
+    api_user = get_apiuser(request)
+
+    if api_user != 404:
+        # Check API User Bearer Token Expiry
+        expired = has_expired(api_user)
+        # IF Token Expired attempt Refresh
+        if expired:
+
+
+
     # Flags
     stop_flag = False
     out_of_time = False
     no_api_user = False
-
-    # Session Persists & Connection Pooling
-    session = requests.Session() 
-    # Session Verification & Tracking
-    session.verify = True # Verification
-    session.trust_env = False # Tracking
+    print('[ERROR] Standard User Must be Logged In to Preform this Task...')
+    
 
     # Base URL
     auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
@@ -32,7 +100,6 @@ def get_token(request):
     # Payload Variables    
     api_key = settings.API_KEY
     password = settings.PASSWORD
-    client_id = settings.CLIENT_ID
 
     # Define Headers
     headers = {
@@ -42,30 +109,7 @@ def get_token(request):
     # API User
     api_user = None
     
-    # Check for Standard & API User Info - Updates no_api_user & Sets api_user
-    if request.user.is_authenticated:
-        try:
-            api_user = APIUser.objects.filter(user=request.user)
-            if api_user:
-                print('[SUCCESS] Found API User!--USERNAME: ', api_user.get().user.username)
-            else:
-                no_api_user = True
-        except Exception as e:
-            print(f'[ERROR] API User Not Yet Created...\nUnexpected Error: {e}')
-            no_api_user = True
-    else:
-        print('[ERROR] Standard User Must be Logged In to Preform this Task...')
-        return None
-
-    # Check API User Bearer Token Expiry - Updates out_of_time
-    if api_user:
-        expires_in = time.time() - api_user.get().issued_time
-        print(f'TIME NOW: {time.time()}\nTIME OF ISSUE: {api_user.get().issued_time}')
-        print('EXISTED FOR: ', expires_in)
-        
-        if expires_in >= 3:
-            print('BEARER TOKEN HAS EXPIRED! Assigning...')
-            out_of_time = True
+   
 
     # FortiAuthorizer Issues a Refreshed Bearer Token
     if out_of_time and api_user:

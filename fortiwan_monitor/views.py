@@ -1,19 +1,9 @@
 import requests, json, os
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from myfortiwan.models import Firewall
-from myfortiwan.services import get_token
-
-fortiwan_secret_token = os.environ.get('FORTIOS_REST_TOKEN')
-
-app_label = 'fortiwan_monitor'
-
-# Session setup
-session = requests.Session()
-session.verify = False # Disable SSL Cert.
-session.trust_env = False # Prevent tracking.   
+from myfortiwan.services import get_token  
      
 @login_required
 def index(request):
@@ -21,7 +11,7 @@ def index(request):
 
 # [GET] IPsec VPN Tunnels
 # @login_required
-def fetch_tunnels(request): # NOTE I must create a API CAll & POST function
+def fetch_tunnels_remove(request): # NOTE I must create a API CAll & POST function
     # if request.method == "GET":
     #     # ## [SETUP] ##
     #     # session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
@@ -109,62 +99,62 @@ def fetch_tunnels(request): # NOTE I must create a API CAll & POST function
     #     #         'interface': firewall_obj.interface}})
     return HttpResponse('HttpResponse: fetch_tunnels')
 
-# NOTE Rebuild this!
-def get_interface(request): # NOTE I must create a API CAll & POST function
-        ## [SETUP] ## 
-        session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
-        session.verify = False # Disable Verification
-        session.trust_env = False # Prevent Tracking
+# # NOTE Rebuild this!
+# def get_interface(request): # NOTE I must create a API CAll & POST function
+#         ## [SETUP] ## 
+#         session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
+#         session.verify = False # Disable Verification
+#         session.trust_env = False # Prevent Tracking
 
-        base_url = 'https://fortiwan.bcfa.co.za:444'
-        api_secret = settings.INTERFACE_TOKEN    
+#         base_url = 'https://fortiwan.bcfa.co.za:444'
+#         api_secret = settings.INTERFACE_TOKEN    
 
-        request_api = f'https://fortiwanlm.bcfa.co.za:444/api/v2/cmdb/vpn.ipsec/phase1-interface/BCFA_Teraco?access_token={api_secret}'
+#         request_api = f'https://fortiwanlm.bcfa.co.za:444/api/v2/cmdb/vpn.ipsec/phase1-interface/BCFA_Teraco?access_token={api_secret}'
                     
-        failed = False # Flag        
-         # Build Request URL
-        headers = {'Content-Type': 'application/json'} # Define Headers
+#         failed = False # Flag        
+#          # Build Request URL
+#         headers = {'Content-Type': 'application/json'} # Define Headers
 
-        vpn_interface = None
+#         vpn_interface = None
 
-        try:
-            response = session.get(url=request_api, headers=headers)
-        except requests.exceptions.RequestException as e:
-                print(f"Network Error: {e}")
-                failed = True
-        except json.JSONDecodeError as e:
-                print(f"JSON Decode Error: {e}")
-                failed = True
-        except Exception as e:
-                print(f"Unexpected Error: {e}")
-                failed = True
+#         try:
+#             response = session.get(url=request_api, headers=headers)
+#         except requests.exceptions.RequestException as e:
+#                 print(f"Network Error: {e}")
+#                 failed = True
+#         except json.JSONDecodeError as e:
+#                 print(f"JSON Decode Error: {e}")
+#                 failed = True
+#         except Exception as e:
+#                 print(f"Unexpected Error: {e}")
+#                 failed = True
         
-        if failed != True:
-            if response.status_code == 200:
-                print(f'[SUCCESS] Received Response({response.status_code}) From - {request_api}')
-                try:
-                    vpn_interface = response.json()
-                except Exception as e:
-                    print(f"Unexpected JSON Error: {e}")
-            else:
-                print(f'[ERROR] Received Response({response.status_code}) From - {request_api}')
-        else:
-            print('[ERROR] Flag is TRUE!')
+#         if failed != True:
+#             if response.status_code == 200:
+#                 print(f'[SUCCESS] Received Response({response.status_code}) From - {request_api}')
+#                 try:
+#                     vpn_interface = response.json()
+#                 except Exception as e:
+#                     print(f"Unexpected JSON Error: {e}")
+#             else:
+#                 print(f'[ERROR] Received Response({response.status_code}) From - {request_api}')
+#         else:
+#             print('[ERROR] Flag is TRUE!')
 
-        if vpn_interface: 
-            # Deconstruct Initial JSON response
-            try:
-                vpn_interface = vpn_interface.get('results', [])         
-                for interface in vpn_interface:          
-                    wan_interface = interface.get('interface')
-                    print(wan_interface)
-                    if wan_interface == 'wan1':
-                        wan_interface = 'MTN'
-                    elif wan_interface == 'wan2':
-                        wan_interface = 'ECHO'
-                return str(wan_interface)
-            except:
-                 return 'no-interface'
-        else:
-             return 'no-interface'
+#         if vpn_interface: 
+#             # Deconstruct Initial JSON response
+#             try:
+#                 vpn_interface = vpn_interface.get('results', [])         
+#                 for interface in vpn_interface:          
+#                     wan_interface = interface.get('interface')
+#                     print(wan_interface)
+#                     if wan_interface == 'wan1':
+#                         wan_interface = 'MTN'
+#                     elif wan_interface == 'wan2':
+#                         wan_interface = 'ECHO'
+#                 return str(wan_interface)
+#             except:
+#                  return 'no-interface'
+#         else:
+#              return 'no-interface'
              

@@ -18,6 +18,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'corsheaders',
+    'fortiwan_services',
     'authentication',
     'fortiwan_dashboard',
     'fortiwan_monitor',

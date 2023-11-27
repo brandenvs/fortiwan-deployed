@@ -1,19 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
-from myfortiwan.services import get_token
+from fortiwan_services.services import get_token
 import os
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def index(request):
-    # Check User is Logged In
-    if request.user.is_authenticated:
-        # Get Bearer Token
-        get_token(request)
+    # Get Bearer Token
+    get_token(request)
+    return render(request, 'fortiwan_dashboard.html')
 
-        # bearer_token = os.getenv('BEARER_TOKEN')
-        # print(f'YOUR BEARER TOKEN: {bearer_token}') NOTE TEST PURPOSES
-        return render(request, 'fortiwan_dashboard.html')
-    else:
-        # Reverse Login Page(if user is NOT logged in...)
-        return HttpResponseRedirect(reverse('authentication:login'))
+# bearer_token = os.getenv('BEARER_TOKEN')
 
