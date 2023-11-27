@@ -2,6 +2,20 @@ import requests, time
 from django.conf import settings
 from authentication.models import APIUser
 
+# Firewall Model
+class Firewall:
+    def __init__(self, ip, name, comment, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface):
+        self.ip = ip
+        self.name = name        
+        self.comment = comment
+        self.status = status
+        self.incoming_core = incoming_core
+        self.outgoing_core = outgoing_core
+        self.p2name = p2name
+        self.incoming_tunnel = incoming_tunnel
+        self.outgoing_tunnel = outgoing_tunnel
+        self.interface = interface 
+
 # Check for API User
 def get_apiuser(request):
     no_api_user = False
@@ -34,8 +48,8 @@ def refresh_token(api_user):
     # Get API User Refresher Token from Db
     refresh_token = api_user.get().refresh_token
 
-    # Define FortiAuthentication API Call
-    auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/" # [auth_URL]
+    # Define Auth URL
+    auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
 
     # Define Request Headers
     headers = {
@@ -48,132 +62,74 @@ def refresh_token(api_user):
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
-    session = requests.Session() # Provides cookie persistence, connection-pooling, and configuration.
+
+    # Setup Session
+    session = requests.Session() # Provides Connection Pooling Persistence
     session.verify = False # Disable Verification
     session.trust_env = False # Prevent Tracking
-    
-    # Setup Session
-    # Calls FortiAuthenticator API POST Request        
+
     try:
-        response_refresh = session.request('post', auth_url, headers=headers, json=payload, verify=False)
-        if response_refresh.status_code == 200:
-            print('[SUCCESS] FortiAuthenticator Issued a API User Refreshed Bearer Token!\n--', f'RESPONSE STATUS CODE: {response_refresh.status_code}')
+        # Make a (Refresher) FortiAuthenticator Request
+        response = session.request('post', auth_url, headers=headers, json=payload, verify=False) # NOTE VERIFY SHOULD BE TRUE
+        if response.status_code == 200:
+            print('[SUCCESS] FortiAuthenticator Issued a API User Refreshed Bearer Token!-- ', f'RESPONSE STATUS CODE: {response.status_code}\n')
+            return response
         else:
-            print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nRESPONSE STATUS CODE: {response_refresh.status_code}')
+            print('[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token-- ', f'RESPONSE STATUS CODE: {response.status_code}\n')
+            return response
     except Exception as e:
-        print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nPYTHON EXCEPTION: {e}\n\nRESPONSE STATUS CODE: {response_refresh.status_code}')
+        print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\n{e}\n')
+        return 404
 
-# GET BEARER TOKEN
-def get_token(request):
-    """Obtain a Bearer Token for authenticated requests.
-
-    This function sends a POST request to the Fortinet authentication API
-    to retrieve a Bearer Token for subsequent authenticated API calls.
-
-    :param request: The request object, typically from a Django web framework view.
-                    It is used to check if the user is authenticated.
-    
-    :return: A Bearer Token string if authentication is successful, otherwise None.
-
-    :raises: Exception if an unexpected error occurs during the API call."""
-    # Check for API User
-    api_user = get_apiuser(request)
-
-    if api_user != 404:
-        # Check API User Bearer Token Expiry
-        expired = has_expired(api_user)
-        # IF Token Expired attempt Refresh
-        if expired:
-
-
-
-    # Flags
-    stop_flag = False
-    out_of_time = False
-    no_api_user = False
-    print('[ERROR] Standard User Must be Logged In to Preform this Task...')
-    
-
-    # Base URL
+# Create a NEW API User object
+def auth_credentials(request):
+    # Define Auth URL
     auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
 
-    # Payload Variables    
-    api_key = settings.API_KEY
-    password = settings.PASSWORD
-
-    # Define Headers
+    # Define Request Headers
     headers = {
         'Content-Type': 'application/json',
-    }    
-    
-    # API User
-    api_user = None
-    
-   
+    }
 
-    # FortiAuthorizer Issues a Refreshed Bearer Token
-    if out_of_time and api_user:
-        local_flag = False
-        print('REFRESH TOKEN: ', api_user.get().refresh_token)
-        refresh_token = api_user.get().refresh_token
-        # Redefine Request Headers
-        headers = {
-            'Content-Type': 'application/json',
-        }    
-        payload = {            
-            'client_id': client_id,
-            'grant_type': 'refresh_token',
-            'refresh_token': refresh_token
-        }
-        # Redefine Base URL
-        auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
-        # Calls FortiAuthenticator API POST Request        
-        try:
-            response_refresh = session.request('post', auth_url, headers=headers, json=payload, verify=False)
-            if response_refresh.status_code == 200:
-                print('[SUCCESS] FortiAuthenticator Issued a API User Refreshed Bearer Token!\n--', f'RESPONSE STATUS CODE: {response_refresh.status_code}')
-            else:
-                print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nRESPONSE STATUS CODE: {response_refresh.status_code}')
-                local_flag = True
-        except Exception as e:
-            print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\nPYTHON EXCEPTION: {e}\n\nRESPONSE STATUS CODE: {response_refresh.status_code}')
-            local_flag = True
-        
-        if local_flag:
-            return None
+    # Define JSON Payload
+    payload = {
+        'username': settings.API_KEY,
+        'password': settings.PASSWORD,
+        'client_id': settings.CLIENT_ID,
+        'grant_type': 'password',
+    }
 
-    # FortiAuthorizer Issues a NEW Bearer Token
-    if no_api_user:
-        # Define Payload
-        payload = {
-            'username': api_key,
-            'password': password,
-            'client_id': client_id,
-            'grant_type': 'password',
-        }
-        # Calls FortiAuthenticator API POST Request        
-        try:
-            new_response = session.request('post', auth_url, headers=headers, json=payload, verify=False)
-            if new_response.status_code != 200:
-                print(f'[ERROR] FortiAuthenticator was unable to login user...\nSTATUS CODE: {new_response.status_code}')
-                stop_flag = True
-            else:
-                print('[SUCCESS] Authorized User!', new_response.status_code)
-        except Exception as e:
-            print(f'[ERROR] FortiAuthenticator was unable to login user...\nUnexpected Error: {e}')
-            stop_flag = True
-        
+    # Setup Session
+    session = requests.Session() # Provides Connection Pooling Persistence
+    session.verify = False # Disable Verification
+    session.trust_env = False # Prevent Tracking
+
+     # Calls FortiAuthenticator API POST Request        
+    try:
+        response = session.request('post', auth_url, headers=headers, json=payload, verify=False)
+        if response.status_code == 200:
+            print('[SUCCESS] FortiAuthenticator Authorized Bearer & Refresher Tokens-- ', response.status_code, end='\n')
+            return response
+        else:
+            print('[ERROR] FortiAuthenticator was Unable to Authorize Bearer & Refresher Tokens-- ', {response.status_code}, end='\n')
+            return response.status_code
+    except Exception as e:
+        print(f'[ERROR] FortiAuthenticator Unable to Authenticate User Credentials...\nUnexpected Error: {e}\n')
+        return 404
+
+# Create a new API User Object & Save to Db
+def create_apiuser(request, response):
         # Create API User Object
         api_user = APIUser(
             user = request.user, 
             issued_time = time.time(),
-            access_token = new_response.json()['access_token'], 
-            expires_in = new_response.json()['expires_in'],
-            token_type = new_response.json()['token_type'],
-            scope = new_response.json()['scope'],
-            refresh_token = new_response.json()['refresh_token'],
-            message = new_response.json()['message'],
-            status = new_response.json()['status'])
+            access_token = response.json()['access_token'], 
+            expires_in = response.json()['expires_in'],
+            token_type = response.json()['token_type'],
+            scope = response.json()['scope'],
+            refresh_token = response.json()['refresh_token'],
+            message = response.json()['message'],
+            status = response.json()['status'])
         
         # Check for Already existing API User against current user(desired: no api user object present!)
         objects_to_remove = APIUser.objects.filter(user=request.user) # NOTE Test Purposes
@@ -183,28 +139,40 @@ def get_token(request):
         api_user.save()
         print('[SUCCESS] Created API User!')
 
-    # Check for Stop Flag
-    if stop_flag:
-        print('[ERROR] STOP FLAG IS:', stop_flag)
-        return None
-    
-    # Create API User & Save Object to Database
-    if no_api_user:
-        
-        return api_user
-    elif api_user and out_of_time:
-        # Update User
-        update_api_user = APIUser.objects.filter(user=request.user)[0]
-        print(update_api_user.user.username, response_refresh.text)
-        
-        update_api_user.access_token = response_refresh.json()['access_token']
-        update_api_user.refresh_token = response_refresh.json()['refresh_token']
-        update_api_user.message = response_refresh.json()['message']
-        update_api_user.save()        
-        return api_user
-    # If All Fails(IAF)... Print & Return None
-    print('[ERROR] Unknown IAF Error at "get_token()" Function...')
-    return None
+# CHECK STATUS OF BEARER TOKEN
+def status_token(request):
+    # Check for API User
+    api_user = get_apiuser(request)
+
+    if api_user != 404:
+        # Check API User Bearer Token Expiry
+        expired = has_expired(api_user)
+        # IF Token Expired attempt Refresh
+        if expired:
+            response = refresh_token(api_user)
+            if response != 404:
+                print('[UPDATING] API User Bearer Token...')
+                # Update API User
+                api_user = APIUser.objects.filter(user=request.user)[0]        
+                api_user.access_token = response.json()['access_token']
+                api_user.refresh_token = response.json()['refresh_token']
+                api_user.save()
+                print('[SUCCESS] API User Updated!')
+                return True              
+            else:
+                print('[FATAL] Response was 404!')
+                return False
+        else:
+            print('Token is VALID(not expired)!')
+            return True     
+    else:
+        response = auth_credentials(request)
+        if response != 404 and response.status_code:
+            create_apiuser(request, response)
+            print('\n\nAPI User Authorized & Created, Successfully Saved to Database!')
+            return True
+        else:
+            return False
 
 def api_call(request, sn, fos_api, payload):
     """Make an API call to the FortiCloud API.
@@ -263,17 +231,74 @@ def api_call(request, sn, fos_api, payload):
         return None
 
 def get_tunnels(request):
-    get_token(request)
-    # foc_api = 'api/v2/monitor/vpn/ipsec'
-    # sns = ['FGT60FTK2109D2Z2', 'FGT60FTK2109D2N4', 'FGT60FTK2109D33E', 'FGT60FTK23099VF4']
+    foc_api = 'api/v2/monitor/vpn/ipsec'
+    sns = ['FGT60FTK2109D2Z2']
 
-    # tunnel_responses = []
-    # for sn in sns:
-    #     # API Call Variables
-    #     response = api_call(request, sn, foc_api, None)
-    #     print(response.status_code)
-    #     tunnel_responses.append(response.json())
-    # return tunnel_responses
+    view_dict = {}
+    tunnel_responses = []
+    firewalls = []
+    vpn_tunnels = None
+
+    for sn in sns:
+        # API Call Variables
+        response = api_call(request, sn, foc_api, None)
+        tunnel_responses.append(response.json())      
+
+        for tunnel in tunnel_responses:
+            firewall = dict(tunnel['results'])
+            firewall_proxy = firewall['proxyid']
+            print(firewall.get('tun_id'), firewall_proxy[0]('p2name'))        
+         
+    try:       
+
+            # if tunnel['results']:
+            #     firewall_obj = Firewall(
+            #         ip = firewall['tun_id'],
+            #         name = firewall['name'],
+            #         comment = firewall['comment'],
+            #         status = firewall_proxy['status'],
+            #         incoming_core = firewall['incoming_bytes'],
+            #         outgoing_core = firewall['outgoing_bytes'],
+            #         p2name = firewall_proxy['p2name'],
+            #         incoming_tunnel = firewall_proxy['incoming_bytes'],
+            #         outgoing_tunnel = firewall['outgoing_bytes'],
+            #         interface = 'NOT IMPLEMENTED YET!')
+            
+            print(firewall_obj.name)
+            # firewall = tunnel.get('results', [])            
+            # proxy = firewall.get('proxyid', [])
+
+            # if len(firewall) > 0: # Check that the object has any vpn stats
+            #     interface = 'non'
+            #     firewall_obj = Firewall(
+            #         ip=firewall.get('tun_id'), 
+            #         name=firewall.get('name'), 
+            #         comment=firewall.get('comments'), 
+            #         status=proxy[0]['status'], 
+            #         incoming_core=firewall.get('incoming_bytes'), 
+            #         incoming_core=firewall.get('outgoing_bytes'),
+            #         p2name=proxy[0]['p2name'],
+            #         incoming_tunnel=proxy[0]['incoming_bytes'],
+            #         outgoing_tunnel=proxy[0]['outgoing_bytes'],
+            #         interface=interface)
+            #     firewalls.append(firewall_obj)    
+    except Exception as e:
+        print('ERROR OCCURRED: ', e)
+        return e    
+            
+    for firewall_obj in firewalls: 
+        view_dict.update({firewall_obj.name:{
+            'ip': firewall_obj.ip, 
+            'name': firewall_obj.name, 
+            'comment': firewall_obj.comment, 
+            'status': firewall_obj.status, 
+            'incoming_core': round(firewall_obj.incoming_core / (1024.0 * 1024.0)), 
+            'outgoing_core': round(firewall_obj.outgoing_core / (1024.0 * 1024.0)), 
+            'p2name': firewall_obj.p2name, 
+            'incoming_tunnel': round(firewall_obj.incoming_tunnel / (1024.0 * 1024.0)),
+            'outgoing_tunnel': round(firewall_obj.outgoing_tunnel / (1024.0 * 1024.0)),
+            'interface': firewall_obj.interface}})
+    return view_dict
 
 
    

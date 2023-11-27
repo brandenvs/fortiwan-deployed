@@ -8,5 +8,4 @@ app_name = 'fortiwan_monitor'
 # Define URL patterns - (app)'monitoring'
 urlpatterns = [
     path('', views.index, name='home'),
-    path('get-tunnels/', views.fetch_tunnels, name='fetch_tunnels'),
 ]

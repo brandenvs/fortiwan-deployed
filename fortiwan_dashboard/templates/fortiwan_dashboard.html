@@ -135,31 +135,24 @@
 {% endblock %}
 
 {% block javascript %}
+<!-- <script src="/static/js/custom_js.js"></script> -->
 <script>
-     function confirmSwitch(name, interface) {
-        const csrftoken = getCookie('csrftoken'); 
-        // Perform AJAX request with the modalName as a parameter
-        $.ajax({
-            url: '{% url "fortiwan_config:put_interface" %}',
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            data: {
-                // Include any data you want to send with the request
-                name: name,
-                interface: interface,
-            },
-            success: function (response) {
-                // Handle the successful response here
-                console.log(`AJAX request successful for ${modalName}:`, response);
-            },
-            error: function (error) {
-                // Handle errors here
-                console.error(`AJAX request failed for ${modalName}:`, error);
-            }
-        });
-    }
+    // $(document).ready(function () {
+    //     $.ajax({
+    //         url: '{% url "fortiwan_services:status_token" %}',
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         success: function (dataList) {
+    //             console.log(dataList)
+    //         },
+    //         error: function () {
+    //             // Handle errors if necessary
+    //             console.error('Error fetching data from the server');
+    //         }
+    //     });
+    // });
+</script>
+<script>
     $(document).ready(function () {
         // Show spinner initially
         $('#spinner').show();
@@ -167,7 +160,7 @@
 
         // Fetch data from the server using AJAX
         $.ajax({
-            url: '{% url "fortiwan_monitor:fetch_tunnels" %}',
+            url: '{% url "fortiwan_services:get_tunnels" %}',
             type: 'GET',
             dataType: 'json',
             success: function (dataList) {

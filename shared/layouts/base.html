@@ -140,8 +140,8 @@
                         </button>
                         {% if user.is_authenticated %}
                         <ul class="dropdown-menu">
-                            <li><button class="dropdown-item" type="button">Manage Account</button></li>
-                            <li><button class="dropdown-item" type="button">Logout</button></li>
+                            <li><a class="dropdown-item" href="#">Manage Account</a></li>
+                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a></li>
                         </ul>
                         {% else %}
                         <ul class="dropdown-menu">
