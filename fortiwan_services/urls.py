@@ -8,6 +8,6 @@ app_name = 'fortiwan_services'
 # Define URL patterns - (app)'monitoring'
 urlpatterns = [
     path('check-for-token/', fortiauthenticator_api_services.status_token, name='status_token'),
-    path('get-tunnels/', fortiauthenticator_api_services.get_tunnels, name='get_tunnels'),
+    path('ipsec-vpn-foc-monitor/', fortiauthenticator_api_services.get_ipsec, name='get_ipsec'),
 
 ]

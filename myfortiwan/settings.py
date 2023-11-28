@@ -122,6 +122,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATICFILES_DIRS = [
     os.path.join(STATIC_ROOT, 'css/'),
     os.path.join(STATIC_ROOT, 'js/'),
+    os.path.join(STATIC_ROOT, 'res/')
 ]
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

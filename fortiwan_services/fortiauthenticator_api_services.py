@@ -1,20 +1,9 @@
 import requests, time
 from django.conf import settings
 from authentication.models import APIUser
-
-# Firewall Model
-class Firewall:
-    def __init__(self, ip, name, comment, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface):
-        self.ip = ip
-        self.name = name        
-        self.comment = comment
-        self.status = status
-        self.incoming_core = incoming_core
-        self.outgoing_core = outgoing_core
-        self.p2name = p2name
-        self.incoming_tunnel = incoming_tunnel
-        self.outgoing_tunnel = outgoing_tunnel
-        self.interface = interface 
+from . import models as vmc
+from django.core.serializers import serialize
+from django.http import JsonResponse
 
 # Check for API User
 def get_apiuser(request):
@@ -82,7 +71,7 @@ def refresh_token(api_user):
         return 404
 
 # Create a NEW API User object
-def auth_credentials(request):
+def auth_credentials():
     # Define Auth URL
     auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
 
@@ -153,7 +142,8 @@ def status_token(request):
             if response != 404:
                 print('[UPDATING] API User Bearer Token...')
                 # Update API User
-                api_user = APIUser.objects.filter(user=request.user)[0]        
+                api_user = APIUser.objects.filter(user=request.user)[0]
+                api_user.issued_time = time.time()      
                 api_user.access_token = response.json()['access_token']
                 api_user.refresh_token = response.json()['refresh_token']
                 api_user.save()
@@ -215,11 +205,13 @@ def api_call(request, sn, fos_api, payload):
         try:
             print(api_url)
             response = session.request('get', api_url, headers=headers, verify=False)
+            # print(response.text) # NOTE TESTING PURPOSES
         except Exception as e:
             print(f'Unexpected Error: {e}')
     elif request.method == 'POST':
         try:
             response = session.request('post', api_url, headers=headers, json=payload, verify=False)
+            # print(response.text) # NOTE TESTING PURPOSES
         except Exception as e:
             print(f'Unexpected Error: {e}')
     
@@ -227,79 +219,165 @@ def api_call(request, sn, fos_api, payload):
         print('[SUCCESS] API Called!', response.status_code)
         return response
     else:
-        print('[ERROR] Unable to Call API', response.status_code)
-        return None
+        print('[ERROR] Unable to Call API', response.status_code, response.text)
+        return 505
 
-def get_tunnels(request):
-    foc_api = 'api/v2/monitor/vpn/ipsec'
-    sns = ['FGT60FTK2109D2Z2']
+def get_ipsec(request):
+    # FortiOS API Path
+    foc_api = 'api/v2/monitor/vpn/ipsec'    
+    sns = []
+    # Read Serial Numbers from Text File
+    with open('static/res/device_serial_numbers.txt', 'r') as read_sn:
+        sn_rows = read_sn.readlines()
+        for sn_row in sn_rows:
+            sn = sn_row.split('#')[0]
+            sns.append(sn)
 
-    view_dict = {}
-    tunnel_responses = []
-    firewalls = []
-    vpn_tunnels = None
+    ipsec_objs = []
+    view_data = {}
 
     for sn in sns:
-        # API Call Variables
+        # Make API Call
         response = api_call(request, sn, foc_api, None)
-        tunnel_responses.append(response.json())      
+        if response != 505:
+            # Extract Result Data
+            results = response.json()['results']
 
-        for tunnel in tunnel_responses:
-            firewall = dict(tunnel['results'])
-            firewall_proxy = firewall['proxyid']
-            print(firewall.get('tun_id'), firewall_proxy[0]('p2name'))        
-         
-    try:       
+            # Iterate Result Data & Normalize
+            for result in results:
+                tunnel_proxy = result['proxyid']                
 
-            # if tunnel['results']:
-            #     firewall_obj = Firewall(
-            #         ip = firewall['tun_id'],
-            #         name = firewall['name'],
-            #         comment = firewall['comment'],
-            #         status = firewall_proxy['status'],
-            #         incoming_core = firewall['incoming_bytes'],
-            #         outgoing_core = firewall['outgoing_bytes'],
-            #         p2name = firewall_proxy['p2name'],
-            #         incoming_tunnel = firewall_proxy['incoming_bytes'],
-            #         outgoing_tunnel = firewall['outgoing_bytes'],
-            #         interface = 'NOT IMPLEMENTED YET!')
-            
-            print(firewall_obj.name)
-            # firewall = tunnel.get('results', [])            
-            # proxy = firewall.get('proxyid', [])
+                # Normalizing - Result Data
+                core_in = round(result['incoming_bytes'] / (1024.0 * 1024.0))
+                core_out = round(result['outgoing_bytes'] / (1024.0 * 1024.0))
+                core_ip = result['tun_id']
+                core_name = result['name']
+                core_comm = result['comments']
 
-            # if len(firewall) > 0: # Check that the object has any vpn stats
-            #     interface = 'non'
-            #     firewall_obj = Firewall(
-            #         ip=firewall.get('tun_id'), 
-            #         name=firewall.get('name'), 
-            #         comment=firewall.get('comments'), 
-            #         status=proxy[0]['status'], 
-            #         incoming_core=firewall.get('incoming_bytes'), 
-            #         incoming_core=firewall.get('outgoing_bytes'),
-            #         p2name=proxy[0]['p2name'],
-            #         incoming_tunnel=proxy[0]['incoming_bytes'],
-            #         outgoing_tunnel=proxy[0]['outgoing_bytes'],
-            #         interface=interface)
-            #     firewalls.append(firewall_obj)    
-    except Exception as e:
-        print('ERROR OCCURRED: ', e)
-        return e    
-            
-    for firewall_obj in firewalls: 
-        view_dict.update({firewall_obj.name:{
-            'ip': firewall_obj.ip, 
-            'name': firewall_obj.name, 
-            'comment': firewall_obj.comment, 
-            'status': firewall_obj.status, 
-            'incoming_core': round(firewall_obj.incoming_core / (1024.0 * 1024.0)), 
-            'outgoing_core': round(firewall_obj.outgoing_core / (1024.0 * 1024.0)), 
-            'p2name': firewall_obj.p2name, 
-            'incoming_tunnel': round(firewall_obj.incoming_tunnel / (1024.0 * 1024.0)),
-            'outgoing_tunnel': round(firewall_obj.outgoing_tunnel / (1024.0 * 1024.0)),
-            'interface': firewall_obj.interface}})
-    return view_dict
+            # Normalizing - Proxy Data
+            if tunnel_proxy and len(tunnel_proxy) > 0:
+                
+                proxy_sources = tunnel_proxy[0]['proxy_src'] 
 
+                source_subnets = {}                   
+                for source in proxy_sources:
+                    src_subnet = source['subnet']
+                    source_subnets.update({src_subnet: 'non'})
 
-   
+                proxy_destinations = tunnel_proxy[0]['proxy_dst']
+                
+                destination_subnets = {}
+                for destination in proxy_destinations:
+                    dst_subnet = destination['subnet']
+                    destination_subnets.update({dst_subnet: 'non'})                        
+
+                proxy_in = round(tunnel_proxy[0]['incoming_bytes'] / (1024.0 * 1024.0))
+                proxy_out = round(tunnel_proxy[0]['outgoing_bytes'] / (1024.0 * 1024.0))
+                proxy_status = tunnel_proxy[0]['status']
+                proxy_parent = tunnel_proxy[0]['p2name']
+                    
+                src_subnets = []
+                for key in source_subnets.keys():
+                    src_subnets.append(key)
+
+                if len(src_subnets) == 1:
+                    src1 = src_subnets[0]
+                    src2 = 'Non'
+                    src3 = 'Non'
+                    src4 = 'Non'
+                elif len(src_subnets) == 2:
+                    src1 = src_subnets[0]
+                    src2 = src_subnets[1]
+                    src3 = 'Non'
+                    src4 = 'Non'
+                elif len(src_subnets) == 3:
+                    src1 = src_subnets[0]
+                    src2 = src_subnets[1]
+                    src3 = src_subnets[2]
+                    src4 = '0.0.0.0'
+                elif len(src_subnet) >= 4:
+                    src1 = src_subnets[0]
+                    src2 = src_subnets[1]
+                    src3 = src_subnets[2]
+                    src4 = src_subnets[3]
+                else:
+                    src1 = 'Non'
+                    src2 = 'Non'
+                    src3 = 'Non'
+                    src4 = 'Non'              
+                
+                dst_subnets = []
+                for key in destination_subnets.keys():
+                    dst_subnets.append(key)
+
+                if len(dst_subnets) == 1:
+                    dst1 = dst_subnets[0]
+                    dst2 = 'Non'
+                elif len(dst_subnets) == 2:
+                    dst1 = dst_subnets[0]
+                    dst2 = dst_subnets[1]
+                elif len(dst_subnets) == 3:
+                    dst1 = dst_subnets[0]
+                    dst2 = dst_subnets[1]
+                elif len(dst_subnet) >= 4:
+                    dst1 = dst_subnets[0]
+                    dst2 = dst_subnets[1]
+                else:
+                    dst1 = 'Non'
+                    dst2 = 'Non'
+            else:
+                proxy_in = 0.0
+                proxy_out = 0.0
+                proxy_status = 'No Proxy Configured!'
+                proxy_parent = 'No Proxy Configured!'
+                
+                src1 = 'Non'
+                src2 = 'Non'
+                src3 = 'Non'
+                src4 = 'Non'
+
+                dst1 = 'Non'
+                dst2 = 'Non'
+                
+            # Define a IPsec/VPN object
+            ipsec_obj = vmc.IPsecVPN(
+                ip=core_ip,
+                name=str(core_name).upper(),
+                comments=str(core_comm),
+                status=str(proxy_status).upper(),
+                incoming_core=core_in,
+                outgoing_core=core_out,
+                p2name=proxy_parent,
+                incoming_tunnel=proxy_in,
+                outgoing_tunnel=proxy_out,
+                interface='[Interface] Not Yet',
+                src1=src1, src2=src2, src3=src3, src4=src4, 
+                dst1=dst1, dst2=dst2)                
+            # Append IPsec/VPN object
+            ipsec_objs.append(ipsec_obj)           
+        else:
+            print('Tunnel Not Connected!')
+
+    # Sort IPsecVPN objects
+    sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)  
+
+    # Update View Data
+    for ipsec_obj in sorted_ipsec_objs:
+        view_obj = {
+            'ip': ipsec_obj.ip,
+            'name': ipsec_obj.name,
+            'comments':ipsec_obj.comments,
+            'status': ipsec_obj.status,
+            'incoming_core': ipsec_obj.incoming_core,
+            'outgoing_core': ipsec_obj.outgoing_core,
+            'p2name': ipsec_obj.p2name,
+            'incoming_tunnel': ipsec_obj.incoming_tunnel,
+            'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
+            'interface': ipsec_obj.interface,
+            'src1': ipsec_obj.src1,'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
+            'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2
+        }
+        view_data.update({ipsec_obj.p2name: view_obj}) 
     
+    # Return JSON Data to View
+    return JsonResponse(view_data)
