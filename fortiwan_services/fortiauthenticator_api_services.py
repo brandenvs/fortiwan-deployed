@@ -782,7 +782,8 @@ def get_ipsec(request):
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
     ipsec_objs = []
     view_data = {}
-    
+    firewall_teraco = sns.pop(0)
+    print(firewall_teraco)
     # test_sns = [sns[0]]
     for sn in sns:
         # Make API Call
