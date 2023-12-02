@@ -64,7 +64,7 @@
                                         </div>
                                         <div class="col-md-6 col-12">
                                             <div class="text-end">
-                                                <a href="#0" title="Reconfigure Tunnel">
+                                                <a href="#interface-modal" data-bs-toggle="modal"  id="launch-modal" title="Reconfigure Tunnel">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-gear-wide spin-on-hover" viewBox="0 0 16 16">
                                                         <path d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434zM8 12.997a4.998 4.998 0 1 1 0-9.995 4.998 4.998 0 0 1 0 9.996z" />
                                                     </svg>
@@ -155,7 +155,8 @@
 
 <div id="modal-container"></div>
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#interface-modal" id="launch-modal" hidden></button>
+<!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#interface-modal" id="launch-modal" hidden></button> -->
+
 <div id="modal-template">
     <!-- Modal -->
     <div class="modal fade" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true" id="interface-modal">
@@ -163,28 +164,23 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modal-title"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                        id="modal-close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-x"></button>
                 </div>
                 <div class="modal-body">
                     <p class="fs-6 fw-bolder text-warning" id="interface-desc"></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success" id="modal-save" hidden>Confirm Switch</button>
                     <form action="{% url 'fortiwan_config:put_interface' %}" method="post">
                         {% csrf_token %}
 
                         <label class="form-label" for="name">Name</label>
-                        <input type="text" class="form-control disabled" aria-describedby="name" name="name"
-                            placeholder="non" value="" id="input-interface-name" required>
+                        <input type="text" class="form-control disabled" aria-describedby="name" name="name" placeholder="non" value="" id="input-interface-name" required>
 
                         <label class="form-label" for="interface">Interface</label>
-                        <input type="text" class="form-control disabled" aria-describedby="interface" name="interface"
-                            placeholder="non" value="" id="input-interface" required>
+                        <input type="text" class="form-control disabled" aria-describedby="interface" name="interface" placeholder="non" value="" id="input-interface" required>
 
                         <input type="submit" class="btn btn-success" value="Confirm">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                            id="modal-cancel">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
                     </form>
                 </div>
             </div>
@@ -251,6 +247,7 @@
                 $.each(dataList, function (index, data) {
                     // Clone the template for each VPN tunnel
                     var $template = $('#ipsec-template').clone();
+                    var $model = $('#interface-modal').clone();
                     var comment = '';
 
                     if (data.comments == ''){
@@ -258,9 +255,10 @@
                     } else {
                         comment = data.comments
                     }
-                    // Update Template
-                    $template.find('#ipsec-name').text(data.name);
-                    $template.find('#ipsec-comment').text(comment);// IPsec Tunnel Name
+
+                    // IPsec Tunnel Data
+                    $template.find('#ipsec-name').text(data.name);// IPsec/VPN Tunnel Name
+                    $template.find('#ipsec-comment').text(comment); // IPsec/VPN Short Hand
                     $template.find('#ipsec-status').text(data.status); // IPsec/VPN Tunnel Status
                     $template.find('#ipsec-ip').text(data.ip); // IPsec/VPN Core IP
                     $template.find('#ipsec-interface').text(data.interface); // IPsec/VPN Tunnel's Interface
@@ -269,21 +267,44 @@
                     $template.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel); // IPsec/VPN Tunnel Incoming Traffic
                     $template.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel); // IPsec/VPN Tunnel Outgoing Traffic
                     $template.find('#card-footer').text(data.username); // IPsec/VPN Tunnel Parent
+                    // IPsec Proxy Data - src
+                    $template.find('#ipsec-src1').text(data.src1);
+                    $template.find('#ipsec-src2').text(data.src2);
+                    $template.find('#ipsec-src3').text(data.src3);
+                    $template.find('#ipsec-src4').text(data.src4);                  
+                    // IPsec Proxy Data - dst
+                    $template.find('#ipsec-dst1').text(data.dst1);
+                    $template.find('#ipsec-dst2').text(data.dst2);
+                    // IPsec Interface Data
+                    $template.find('#ipsec-interface').text(data.interface);
+                    if (data.interface == 'none') {
+                        $template.find('#launch-modal').hide();
+                    }
 
-                    $template.find('#ipsec-src1').text(data.src1)
-                    $template.find('#ipsec-src2').text(data.src2)
-                    $template.find('#ipsec-src3').text(data.src3)
-                    $template.find('#ipsec-src4').text(data.src4)                    
+                    var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
 
-                    $template.find('#ipsec-dst1').text(data.dst1)
-                    $template.find('#ipsec-dst2').text(data.dst2)
+                    $template.find('#launch-modal').attr('href', '#' + interface_modal_id);
+
+                    $model.attr('id', interface_modal_id);
+                    $model.find('#modal-title').text('Interface Switch ' + data.name);
+                    $model.find('#interface-desc').text(data.interface);
+                    
+                    var to = 'wan1';
+                    if (data.interface == 'wan1') {
+                        to = 'wan2'
+                    }
+                    $model.find('#interface-desc').text('Are you sure you want switch ' + data.name + ' from ' + data.interface + ' to ' + to + '?');
+                    $model.find('#input-interface').attr('value', data.interface);
+                    $model.find('#input-interface-name').attr('value', data.name);
 
                     // Remove the hidden Attribute from Template
                     $template.removeAttr('hidden');
 
-                    // Populate the IPsec Container
+                    // Populate the IPsec & Model Containers
                     $('#ipsec-container').append($template);
-                    alertMsg('Success!', 'Successfully Retrieved IPsec Tunnel Data', 'success')
+                    $('#modal-container').append($model);
+
+                    alertMsg('Success!', 'Successfully Retrieved IPsec Tunnel Data', 'success');
                 });
 
                 //     $template.find('#ipsec-name').text(data.name + ' | ' + data.comment);
@@ -307,7 +328,6 @@
 
                 //         var $modal = $('#modal-template').clone();
 
-                //         var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
 
                 //         $modal.find('#interface-modal').attr('id', interface_modal_id);
                 //         $modal.find('#modal-title').text('Switch to MTN Interface?');

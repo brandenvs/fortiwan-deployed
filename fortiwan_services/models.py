@@ -12,9 +12,14 @@ class IPsecVPN_1(models.Model):
     outgoing_tunnel = models.CharField(max_length=50)
     interface = models.CharField(max_length=50)
 
+class Interface:
+    def __init__(self, name, type, interface):
+        self.name = name
+        self.type = type
+        self.interface = interface
 # Firewall Model
 class IPsecVPN:
-    def __init__(self, ip, name, comments, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface, src1, src2, src3, src4, dst1, dst2):
+    def __init__(self, ip, name, comments, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface, src1, src2, src3, src4, dst1, dst2, serial_number):
         self.ip = ip
         self.name = name        
         self.comments = comments
@@ -33,6 +38,11 @@ class IPsecVPN:
 
         self.dst1 = dst1
         self.dst2 = dst2
+
+        self.serial_number = serial_number
+
+    def update_interface(self, new_interface):
+        self.interface = new_interface
     
     def __str__(self):
         test_output = f'''-----------------------------------------------------------
@@ -45,6 +55,9 @@ STATUS: {self.status}
 -- PROXIED TRAFFIC --
     Incoming: {self.incoming_tunnel} MB/s
     Outgoing: {self.outgoing_tunnel} MB/s
+-- INTERFACE --
+    Interface: {self.interface}
 -----------------------------------------------------------
 '''
         return test_output
+    

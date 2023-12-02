@@ -593,10 +593,10 @@ def api_call(request, sn, fos_api, payload):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {api_user.access_token}'
     }
-
+    print('CALLING: ', api_url)
     # Make API Request (GET or POST)
     try:
-        method = 'get' if request.method == 'GET' else 'post'
+        method = 'get' if request.method == 'GET' else 'post' # Sleek
         response = session.request(str(method), api_url, headers=headers, json=payload, verify=False)
         # Uncomment the following line for testing purposes
         # print(response.text)
@@ -782,7 +782,8 @@ def get_ipsec(request):
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
     ipsec_objs = []
     view_data = {}
-
+    
+    # test_sns = [sns[0]]
     for sn in sns:
         # Make API Call
         response = api_call(request, sn, foc_api, None)
@@ -814,7 +815,7 @@ def get_ipsec(request):
 
                 # Sort Subnets
                 source_subnets.sort()
-                destination_subnets.sort()
+                destination_subnets.sort()               
 
                 # Create IPsec/VPN object
                 ipsec_obj = vmc.IPsecVPN(
@@ -827,24 +828,28 @@ def get_ipsec(request):
                     p2name=proxy_parent,
                     incoming_tunnel=proxy_in,
                     outgoing_tunnel=proxy_out,
-                    interface='[Interface] Not Yet',
+                    interface='non',
                     src1=source_subnets[0] if source_subnets else '--',
                     src2=source_subnets[1] if len(source_subnets) > 1 else '--',
                     src3=source_subnets[2] if len(source_subnets) > 2 else '--',
                     src4=source_subnets[3] if len(source_subnets) > 3 else '--',
                     dst1=destination_subnets[0] if destination_subnets else '--',
-                    dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--'
-                )
+                    dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
+                    serial_number=sn
+                )                
+                get_interface(request, ipsec_obj)
+
                 # Append IPsec/VPN object
                 ipsec_objs.append(ipsec_obj)
         else:
             print(f'Tunnel Not Connected for SN: {sn}')
-
+    
     # Sort IPsecVPN objects
-    sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)
+    sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
 
     # Update View Data
     for ipsec_obj in sorted_ipsec_objs:
+        print(ipsec_obj)
         view_obj = {
             'ip': ipsec_obj.ip,
             'name': ipsec_obj.name,
@@ -863,3 +868,18 @@ def get_ipsec(request):
 
     # Return JSON Data to View
     return JsonResponse(view_data)
+
+def get_interface(request, ipsec_obj):    
+    fos_api = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{ipsec_obj.name}'
+
+    name_split = ipsec_obj.name
+    name_split = str(name_split).split('_')
+
+    if len(name_split) <= 2:
+        response_interface = api_call(request, ipsec_obj.serial_number, fos_api, None)
+        if response_interface is not None:
+            # Extract Result Data
+            results = response_interface.json().get('results', [])
+            for result in results:
+                interface = result.get('interface', '')
+                ipsec_obj.update_interface(interface)
