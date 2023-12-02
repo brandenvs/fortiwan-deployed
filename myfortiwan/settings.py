@@ -9,8 +9,8 @@ SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'brandenvanstaden.co.za', 
-    'https://brandenvanstaden.co.za', 
+    'https://fortiapi.bcfa.co.za',
+    'fortiapi.bcfa.co.za',
     '51.68.220.41', 
     'localhost', 
     '127.0.0.1'
@@ -53,7 +53,7 @@ SESSION_COOKIE_SECURE = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF Tokenization
-CSRF_TRUSTED_ORIGINS = ['https://brandenvanstaden.co.za']
+CSRF_TRUSTED_ORIGINS = ['https://fortiapi.bcfa.co.za/']
 CSRF_COOKIE_SECURE = True
 
 # SSL Redirect
