@@ -162,17 +162,19 @@
     <div class="modal fade" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true" id="interface-modal">
         <div class="modal-dialog">
             <div class="modal-content">
+                <!-- Interface Model Header -->
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modal-title"></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-x"></button>
                 </div>
+                <!--  -->
                 <div class="modal-body">
                     <p class="fs-6 fw-bolder text-warning" id="interface-desc"></p>
                 </div>
                 <div class="modal-footer">
                     <form action="{% url 'fortiwan_services:switch_interface' %}" method="post" class="d-flex align-items-start">
                         {% csrf_token %}
-                        <div class="row">
+                        <div class="row g-2">
                             <div class="col-md-6 col-12">
                                 <label class="form-label" for="tunnel_name">IPsec Tunnel Name</label>
                                 <input type="text" class="form-control disab" name="tunnel_name" placeholder="non" value="" id="input-name" disabled>
@@ -189,7 +191,7 @@
                                 <label class="form-label" for="interface">Current Interface</label>
                                 <input type="text" class="form-control" name="tunnel_interface" placeholder="non" value="" id="input-interface" disabled>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-start">
                                 <input type="submit" class="btn btn-success" value="Confirm">
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
                             </div>
