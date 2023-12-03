@@ -1,0 +1,29 @@
+<!--Fetch_Layout File-->
+{% extends 'base.html' %}
+
+<!--Set Tab Title-->
+{% block title %}Dashboard - Fortiwan{% endblock %}
+
+{% block app_title %}Welcome to Fortiwan BCFA{% endblock %}
+
+{% block app_subtitle %}A WebApp derived from the FortiOS REST API.{% endblock %}
+
+{% block current_location %}Dashboard{% endblock %}
+
+<!--Body Content-->
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        {% if tunnel_data %}
+        <h2 class="text-primary-emphasis mb-0"><span class="badge bg-success">{{ tunnel_data.http_status|default:'non' }}</span> Successfully Switched {{ tunnel_data.tunnel_name|default:'non' }}'s IPsec VPN Interface!</h2>
+        <p class="fs-4 fw-light ms-2">Interface was 
+            <span class="fw-bolder text-secondary">{{ tunnel_data.interface_before|default:'non'|upper }}</span> >>> Switched to <span class="fw-bolder text-primary">{{ tunnel_data.interface_after|default:'non'|upper  }}</span>.
+        </p>
+        {% endif %}
+    </div>
+    <div class="card-footer">
+        <a class="btn btn-success" href="{% url 'fortiwan_dashboard:home' %}">Continue...</a>
+        <a class="btn btn-danger" href="#NOT-YET" title="Revert Interface back to {{ tunnel_data.interface_before|default:'non' }}?">Revert Changes?</a>
+    </div>
+</div>
+{% endblock %}

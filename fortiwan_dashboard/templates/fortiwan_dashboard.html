@@ -80,7 +80,7 @@
                                         </div>
                                         <div class="col-md-6 col-12">
                                             <div class="text-end">
-                                                <h6 class="fw-semibold badge bg-info rounded-pill" id="ipsec-interface"></h6>
+                                                <h6 class="fw-semibold mb-1">INTERFACE: <span class="badge bg-primary rounded-pill" id="ipsec-interface"></span></h6>       
                                             </div>
                                         </div>
                                     </div>
@@ -170,17 +170,30 @@
                     <p class="fs-6 fw-bolder text-warning" id="interface-desc"></p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{% url 'fortiwan_config:put_interface' %}" method="post">
+                    <form action="{% url 'fortiwan_services:switch_interface' %}" method="post" class="d-flex align-items-start">
                         {% csrf_token %}
-
-                        <label class="form-label" for="name">Name</label>
-                        <input type="text" class="form-control disabled" aria-describedby="name" name="name" placeholder="non" value="" id="input-interface-name" required>
-
-                        <label class="form-label" for="interface">Interface</label>
-                        <input type="text" class="form-control disabled" aria-describedby="interface" name="interface" placeholder="non" value="" id="input-interface" required>
-
-                        <input type="submit" class="btn btn-success" value="Confirm">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
+                        <div class="row">
+                            <div class="col-md-6 col-12">
+                                <label class="form-label" for="tunnel_name">IPsec Tunnel Name</label>
+                                <input type="text" class="form-control" name="tunnel_name" placeholder="non" value="" id="input-name" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label class="form-label" for="addr">IPsec Tunnel Abbreviation</label>
+                                <input type="text" class="form-control" name="tunnel_abbr" placeholder="non" value="" id="input-abbr" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label class="form-label" for="serial_number">Associated Serial Number</label>
+                                <input type="text" class="form-control" name="serial_number" placeholder="non" value="" id="input-serial-number" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label class="form-label" for="interface">Current Interface</label>
+                                <input type="text" class="form-control" name="tunnel_interface" placeholder="non" value="" id="input-interface" required>
+                            </div>
+                            <div class="col-12 text-end">
+                                <input type="submit" class="btn btn-success" value="Confirm">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -191,6 +204,7 @@
 
 {% block javascript %}
 <script>
+    // Popover Messages
     function alertMsg(title, text, alertType) {
         const toastLiveExample = document.getElementById('liveToast');
         const toastTitle = document.getElementById('toast-title');
@@ -286,16 +300,17 @@
                     $template.find('#launch-modal').attr('href', '#' + interface_modal_id);
 
                     $model.attr('id', interface_modal_id);
-                    $model.find('#modal-title').text('Interface Switch ' + data.name);
-                    $model.find('#interface-desc').text(data.interface);
+                    $model.find('#modal-title').text('Interface Switch for ' + data.name);
                     
                     var to = 'wan1';
                     if (data.interface == 'wan1') {
                         to = 'wan2'
                     }
-                    $model.find('#interface-desc').text('Are you sure you want switch ' + data.name + ' from ' + data.interface + ' to ' + to + '?');
-                    $model.find('#input-interface').attr('value', data.interface);
-                    $model.find('#input-interface-name').attr('value', data.name);
+                    $model.find('#interface-desc').text('Are you sure you want switch ' + comment + ' from ' + data.interface + ' to ' + to + '?');
+                    $model.find('#input-name').attr('value', comment);
+                    $model.find('#input-abbr').attr('value', data.name);
+                    $model.find('#input-serial-number').attr('value', data.serial_number);
+                    $model.find('#input-interface').attr('value', data.interface)
 
                     // Remove the hidden Attribute from Template
                     $template.removeAttr('hidden');
@@ -303,81 +318,10 @@
                     // Populate the IPsec & Model Containers
                     $('#ipsec-container').append($template);
                     $('#modal-container').append($model);
-
+                    
+                    // Reveal Success Popover
                     alertMsg('Success!', 'Successfully Retrieved IPsec Tunnel Data', 'success');
                 });
-
-                //     $template.find('#ipsec-name').text(data.name + ' | ' + data.comment);
-
-                //     $template.find('#ipsec-status').text('STATUS ' + data.status.toUpperCase());
-
-                //     $template.find('#ipsec-ip').text(data.ip);
-
-                //     $template.find('#ipsec-incoming-core').text(data.incoming_core);
-                //     $template.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel);
-
-                //     $template.find('#ipsec-outgoing-core').text(data.outgoing_core);
-                //     $template.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel);
-
-                //     var wan_interface = data.interface;                    
-                //     console.log(wan_interface);
-
-                //     if (wan_interface == 'ECHO') {
-                //         $template.find('#has-interface').text('ECHO').show();          
-                //         $template.find('#no-interface').hide();
-
-                //         var $modal = $('#modal-template').clone();
-
-
-                //         $modal.find('#interface-modal').attr('id', interface_modal_id);
-                //         $modal.find('#modal-title').text('Switch to MTN Interface?');
-                //         $modal.find('#interface-desc').text('Are you sure you want switch ' + data.name + ' from ECHO to MTN');
-
-
-                //         var $launch_modal = $('#launch-modal').clone();
-
-                //         $launch_modal.attr('data-bs-target', '#' + interface_modal_id);
-                //         $launch_modal.attr('title', interface_modal_id + '-title');
-                //         $launch_modal.text('Switch Interfaces').removeAttr('hidden');
-                //         $launch_modal.attr('id', interface_modal_id + '-launch-modal');
-
-                //         $template.find('#card-footer').append($launch_modal);
-
-                //         $modal.find('#modal-save').attr('onclick', "confirmSwitch('" + data.name + "', '" + wan_interface + "')")
-
-                //         // $modal.find('#modal-form').attr('action', '{% url "fortiwan_config:put_interface" %}')
-                //         $modal.find('#input-interface-name').attr('value', data.name)
-                //         $modal.find('#input-interface').attr('value', wan_interface)
-
-                //         $('#modal-container').append($modal);
-
-                //     } else if (wan_interface == 'MTN') {
-                //         $template.find('#has-interface').text('MTN').show();          
-                //         $template.find('#no-interface').hide();
-
-                //         var $modal = $('#modal-template').clone();
-
-                //         var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
-
-                //         $modal.find('#interface-modal').attr('id', interface_modal_id);
-                //         $modal.find('#modal-title').text('Switch to ECHO Interface?');
-                //         $modal.find('#interface-desc').text('Are you sure you want switch <b>' + data.name + '</b> from MTN to ECHO');
-
-                //         var $launch_modal = $('#launch-modal').clone();
-
-                //         $launch_modal.attr('data-bs-target', '#' + interface_modal_id);
-                //         $launch_modal.attr('title', interface_modal_id + '-title');
-                //         $launch_modal.text('Switch Interfaces').removeAttr('hidden');
-                //         $launch_modal.attr('id', interface_modal_id + '-launch-modal');                        
-
-                //         $template.find('#card-footer').append($launch_modal);
-                //         $modal.find('#modal-save').attr('onclick', "confirmSwitch('" + data.name + "', '" + wan_interface + "')")
-
-                //         $('#modal-container').append($modal);
-                //     } else {
-                //         $template.find('#no-interface').show();
-                //         $template.find('#edit-model-btn').addClass('disabled');
-                //     }           
             },
             error: function () {
                 // Handle errors if necessary

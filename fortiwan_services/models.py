@@ -45,10 +45,10 @@ class IPsecVPN:
         self.interface = new_interface
     
     def __str__(self):
-        test_output = f'''-----------------------------------------------------------
+        test_output = f'''------------------------------------------------------------------------
 IPsec/VPN Tunnel - {self.name} | {self.comments} | {self.ip}
 STATUS: {self.status}
------------------------------------------------------------
+-----------------------------
 -- CLEAR TRAFFIC --
     Incoming: {self.incoming_core} MB/s
     Outgoing: {self.outgoing_core} MB/s
@@ -56,8 +56,8 @@ STATUS: {self.status}
     Incoming: {self.incoming_tunnel} MB/s
     Outgoing: {self.outgoing_tunnel} MB/s
 -- INTERFACE --
-    Interface: {self.interface}
------------------------------------------------------------
-'''
+    {self.interface}
+-- SERIAL NUMBER -- 
+    {self.serial_number}'''
         return test_output
     

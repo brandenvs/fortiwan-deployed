@@ -1,9 +1,15 @@
-import requests, time
+import requests, time, json
 from django.conf import settings
 from authentication.models import APIUser
 from . import models as vmc
 from django.core.serializers import serialize
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
+from django.shortcuts import render
+import certifi
+import urllib3
+
+
 
 '''rollback code
 # # Check for API User
@@ -487,66 +493,7 @@ def status_token(request):
         else:
             return False
 
-'''rollback code
-# def api_call(request, sn, fos_api, payload):
-#     """Make an API call to the FortiCloud API.
-
-#     This function performs either a GET or POST request to the FortiCloud API
-#     based on the provided HTTP request method. It utilizes a session with
-#     connection pooling and persists a Bearer Token for authentication.
-
-#     :param request: The HTTP request object, typically from a Django web framework view.
-#     :param sn: The serial number of the FortiGate device.
-#     :param fos_api: The specific FortiCloud API endpoint.
-#     :param payload: The payload to be included in the request for POST method.
-
-#     :return: The response object if the API call is successful (status code 200),
-#              otherwise None.
-
-#     :raises: Exception if an unexpected error occurs during the API call.
-#     """
-#     # Session Persists & Connection Pooling
-#     session = requests.Session() 
-#     # Session Verification & Tracking
-#     session.verify = True # Verification
-#     session.trust_env = False # Tracking
-    
-#     # Define Region Base
-#     base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
-#     # Define Full Base
-#     api_url = f'{base_url}/{sn}/{fos_api}'
-
-#     response = None
-#     api_user = APIUser.objects.get(user=request.user) 
-
-#     headers = {
-#         'Content-Type': 'application/json',
-#         'Authorization': f'Bearer {api_user.access_token}'
-#     }
-
-#     # Make API Request(GET)
-#     if request.method == 'GET':
-#         try:
-#             print(api_url)
-#             response = session.request('get', api_url, headers=headers, verify=False)
-#             # print(response.text) # NOTE TESTING PURPOSES
-#         except Exception as e:
-#             print(f'Unexpected Error: {e}')
-#     elif request.method == 'POST':
-#         try:
-#             response = session.request('post', api_url, headers=headers, json=payload, verify=False)
-#             # print(response.text) # NOTE TESTING PURPOSES
-#         except Exception as e:
-#             print(f'Unexpected Error: {e}')
-    
-#     if response.status_code == 200:
-#         print('[SUCCESS] API Called!', response.status_code)
-#         return response
-#     else:
-#         print('[ERROR] Unable to Call API', response.status_code, response.text)
-#         return 505
-'''
-def api_call(request, sn, fos_api, payload):
+def api_call(request, serial_number, fos_area, payload):
     """
     Make an authenticated API call to the FortiCloud API.
 
@@ -578,212 +525,64 @@ def api_call(request, sn, fos_api, payload):
     ```
     """
 
+    session = urllib3.PoolManager(
+        cert_reqs="CERT_REQUIRED",
+        ca_certs=certifi.where()
+    )
+
     # Session Setup
-    session = requests.Session() 
-    session.verify = True  # SSL verification enabled
-    session.trust_env = False  # Do not read proxy settings from environment
+    # session = requests.Session() 
+    # session.verify = True  # SSL verification enabled
+    # session.trust_env = False  # Do not read proxy settings from environment
 
     # API URL Construction
     base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
-    api_url = f'{base_url}/{sn}/{fos_api}'
+    # api_url = urljoin(base_url, f'{serial_number}/{fos_area}')
+    api_url = f'{base_url}/{serial_number}/{fos_area}'
 
     # Bearer Token Retrieval
     api_user = APIUser.objects.get(user=request.user) 
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {api_user.access_token}'
     }
-    print('CALLING: ', api_url)
+    
     # Make API Request (GET or POST)
     try:
-        method = 'get' if request.method == 'GET' else 'post' # Sleek
-        response = session.request(str(method), api_url, headers=headers, json=payload, verify=False)
+        method = 'get' if request.method == 'GET' else 'put' # Sleek
+        print(f'\nCALLING({method}): ', api_url, end='\n')
+        response = session.request(str(method), api_url, headers=headers, json=payload)
         # Uncomment the following line for testing purposes
         # print(response.text)
     except Exception as e:
         print(f'Unexpected Error: {e}')
-
-    # Response Handling
-    if response and response.status_code == 200:
-        print('[SUCCESS] API Called!', response.status_code)
-        return response
-    else:
-        print('[ERROR] Unable to Call API', response.status_code)
         return None
 
-'''rollback code
-# def get_ipsec(request):
-#     # FortiOS API Path
-#     foc_api = 'api/v2/monitor/vpn/ipsec'    
-#     sns = []
-#     # Read Serial Numbers from Text File
-#     with open('static/res/device_serial_numbers.txt', 'r') as read_sn:
-#         sn_rows = read_sn.readlines()
-#         for sn_row in sn_rows:
-#             sn = sn_row.split('#')[0]
-#             sns.append(sn)
+    # Response Handling
+    if response and response.status == 200:
+        print('[SUCCESS] API Called!', response.status)
+    else:
+        print('[ERROR] Unable to Call API', response.status)
+    return response
 
-#     ipsec_objs = []
-#     view_data = {}
-
-#     for sn in sns:
-#         # Make API Call
-#         response = api_call(request, sn, foc_api, None)
-#         if response != None:
-#             # Extract Result Data
-#             results = response.json()['results']
-
-#             # Iterate Result Data & Normalize
-#             for result in results:
-#                 tunnel_proxy = result['proxyid']                
-
-#                 # Normalizing - Result Data
-#                 core_in = round(result['incoming_bytes'] / (1024.0 * 1024.0))
-#                 core_out = round(result['outgoing_bytes'] / (1024.0 * 1024.0))
-#                 core_ip = result['tun_id']
-#                 core_name = result['name']
-#                 core_comm = result['comments']
-
-#             # Normalizing - Proxy Data
-#             if tunnel_proxy and len(tunnel_proxy) > 0:
-                
-#                 proxy_sources = tunnel_proxy[0]['proxy_src'] 
-
-#                 source_subnets = {}                   
-#                 for source in proxy_sources:
-#                     src_subnet = source['subnet']
-#                     source_subnets.update({src_subnet: 'non'})
-
-#                 proxy_destinations = tunnel_proxy[0]['proxy_dst']
-                
-#                 destination_subnets = {}
-#                 for destination in proxy_destinations:
-#                     dst_subnet = destination['subnet']
-#                     destination_subnets.update({dst_subnet: 'non'})                        
-
-#                 proxy_in = round(tunnel_proxy[0]['incoming_bytes'] / (1024.0 * 1024.0))
-#                 proxy_out = round(tunnel_proxy[0]['outgoing_bytes'] / (1024.0 * 1024.0))
-#                 proxy_status = tunnel_proxy[0]['status']
-#                 proxy_parent = tunnel_proxy[0]['p2name']
-                    
-#                 src_subnets = []
-#                 for key in source_subnets.keys():
-#                     src_subnets.append(key)
-
-#                 if len(src_subnets) == 1:
-#                     src1 = src_subnets[0]
-#                     src2 = 'Non'
-#                     src3 = 'Non'
-#                     src4 = 'Non'
-#                 elif len(src_subnets) == 2:
-#                     src1 = src_subnets[0]
-#                     src2 = src_subnets[1]
-#                     src3 = 'Non'
-#                     src4 = 'Non'
-#                 elif len(src_subnets) == 3:
-#                     src1 = src_subnets[0]
-#                     src2 = src_subnets[1]
-#                     src3 = src_subnets[2]
-#                     src4 = '0.0.0.0'
-#                 elif len(src_subnet) >= 4:
-#                     src1 = src_subnets[0]
-#                     src2 = src_subnets[1]
-#                     src3 = src_subnets[2]
-#                     src4 = src_subnets[3]
-#                 else:
-#                     src1 = 'Non'
-#                     src2 = 'Non'
-#                     src3 = 'Non'
-#                     src4 = 'Non'              
-                
-#                 dst_subnets = []
-#                 for key in destination_subnets.keys():
-#                     dst_subnets.append(key)
-
-#                 if len(dst_subnets) == 1:
-#                     dst1 = dst_subnets[0]
-#                     dst2 = 'Non'
-#                 elif len(dst_subnets) == 2:
-#                     dst1 = dst_subnets[0]
-#                     dst2 = dst_subnets[1]
-#                 elif len(dst_subnets) == 3:
-#                     dst1 = dst_subnets[0]
-#                     dst2 = dst_subnets[1]
-#                 elif len(dst_subnet) >= 4:
-#                     dst1 = dst_subnets[0]
-#                     dst2 = dst_subnets[1]
-#                 else:
-#                     dst1 = 'Non'
-#                     dst2 = 'Non'
-#             else:
-#                 proxy_in = 0.0
-#                 proxy_out = 0.0
-#                 proxy_status = 'No Proxy Configured!'
-#                 proxy_parent = 'No Proxy Configured!'
-                
-#                 src1 = 'Non'
-#                 src2 = 'Non'
-#                 src3 = 'Non'
-#                 src4 = 'Non'
-
-#                 dst1 = 'Non'
-#                 dst2 = 'Non'
-                
-#             # Define a IPsec/VPN object
-#             ipsec_obj = vmc.IPsecVPN(
-#                 ip=core_ip,
-#                 name=str(core_name).upper(),
-#                 comments=str(core_comm),
-#                 status=str(proxy_status).upper(),
-#                 incoming_core=core_in,
-#                 outgoing_core=core_out,
-#                 p2name=proxy_parent,
-#                 incoming_tunnel=proxy_in,
-#                 outgoing_tunnel=proxy_out,
-#                 interface='[Interface] Not Yet',
-#                 src1=src1, src2=src2, src3=src3, src4=src4, 
-#                 dst1=dst1, dst2=dst2)                
-#             # Append IPsec/VPN object
-#             ipsec_objs.append(ipsec_obj)           
-#         else:
-#             print('Tunnel Not Connected!')
-
-#     # Sort IPsecVPN objects
-#     sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)  
-
-#     # Update View Data
-#     for ipsec_obj in sorted_ipsec_objs:
-#         view_obj = {
-#             'ip': ipsec_obj.ip,
-#             'name': ipsec_obj.name,
-#             'comments':ipsec_obj.comments,
-#             'status': ipsec_obj.status,
-#             'incoming_core': ipsec_obj.incoming_core,
-#             'outgoing_core': ipsec_obj.outgoing_core,
-#             'p2name': ipsec_obj.p2name,
-#             'incoming_tunnel': ipsec_obj.incoming_tunnel,
-#             'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
-#             'interface': ipsec_obj.interface,
-#             'src1': ipsec_obj.src1,'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
-#             'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2
-#         }
-#         view_data.update({ipsec_obj.p2name: view_obj}) 
-    
-#     # Return JSON Data to View
-#     return JsonResponse(view_data)
-'''
 def read_serial_numbers(file_path):
     with open(file_path, 'r') as read_sn:
         return [sn.split('#')[0] for sn in read_sn.readlines()]
 def get_ipsec(request):
     # FortiOS API Path
     foc_api = 'api/v2/monitor/vpn/ipsec'
-    
+
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
     ipsec_objs = []
     view_data = {}
+
+    # NOTE Bespoke Solution
     firewall_teraco = sns.pop(0)
-    print(firewall_teraco)
+    print(f'\nremoved serial number: "{firewall_teraco}"\n')
+    # firewall_longmedow = sns.pop(1)
+    # print(f'\nremoved serial number: "{firewall_longmedow}"\n')
+
     # test_sns = [sns[0]]
     for sn in sns:
         # Make API Call
@@ -844,7 +643,7 @@ def get_ipsec(request):
                 ipsec_objs.append(ipsec_obj)
         else:
             print(f'Tunnel Not Connected for SN: {sn}')
-    
+
     # Sort IPsecVPN objects
     sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
 
@@ -863,14 +662,15 @@ def get_ipsec(request):
             'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
             'interface': ipsec_obj.interface,
             'src1': ipsec_obj.src1, 'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
-            'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2
+            'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2,
+            'serial_number': ipsec_obj.serial_number
         }
         view_data[ipsec_obj.p2name] = view_obj
 
     # Return JSON Data to View
     return JsonResponse(view_data)
 
-def get_interface(request, ipsec_obj):    
+def get_interface(request, ipsec_obj):
     fos_api = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{ipsec_obj.name}'
 
     name_split = ipsec_obj.name
@@ -884,3 +684,48 @@ def get_interface(request, ipsec_obj):
             for result in results:
                 interface = result.get('interface', '')
                 ipsec_obj.update_interface(interface)
+
+import requests
+from urllib.parse import urljoin
+
+def post_interface_switch(request):
+    if request.method == 'POST':
+        tunnel_name = request.POST['tunnel_name']
+        tunnel_abbr = request.POST['tunnel_abbr']
+        serial_number = request.POST['serial_number']
+        tunnel_interface = request.POST['tunnel_interface']
+
+        fos_area = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{tunnel_abbr}'
+
+        print(f'serial_number: {serial_number}\nname: {tunnel_name}\ninterface: {tunnel_interface}')
+
+        if tunnel_interface == 'wan1':
+            new_tunnel_interface = 'MTN'
+        elif tunnel_interface == 'wan2':
+            new_tunnel_interface = 'Vodacom'
+        else:
+            new_tunnel_interface = 'No Interface'
+
+        # Define JSON Payload
+        payload = {
+            'interface': new_tunnel_interface
+        }
+
+        response = api_call(request, serial_number, fos_area, payload)
+        response_json = response.json()
+        print(response_json)
+
+        tunnel_data = {
+            'mkey': response_json['mkey'],
+            'status': response_json['status'],
+            'http_status': str(response_json['http_status']).upper(),
+            'revision_changed': response_json['revision_changed'],
+            'serial': response_json['serial'],
+            'interface_before': tunnel_interface,
+            'interface_after': new_tunnel_interface,
+            'tunnel_name': tunnel_name,
+            'tunnel_abbr': tunnel_abbr
+        }
+        return render(request, 'tunnel_overview.html', {'tunnel_data': tunnel_data})
+
+
