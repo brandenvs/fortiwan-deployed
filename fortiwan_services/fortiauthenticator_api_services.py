@@ -1,34 +1,10 @@
-import requests, time, json
+import requests, time, certifi, urllib3
 from django.conf import settings
 from authentication.models import APIUser
 from . import models as vmc
-from django.core.serializers import serialize
-from django.http import JsonResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.http import JsonResponse
 from django.shortcuts import render
-import certifi
-import urllib3
 
-
-
-'''rollback code
-# # Check for API User
-# def get_apiuser(request):
-#     no_api_user = False
-#     try:
-#         api_user = APIUser.objects.filter(user=request.user)
-#         if api_user.get().user.username == None:
-#             no_api_user = True
-#     except Exception as e:
-#         no_api_user = True
-    
-#     if no_api_user:
-#         print(f'[OPERATION-REQUIRED] No API User Found for: {request.user.username}...\n')
-#         return 404
-    
-#     print('[SUCCESS] Found API User!--USERNAME: ', api_user.get().user.username, end='\n')
-#     return api_user
-'''
 def get_apiuser(request):
     """
     Get the API user associated with the given request.
@@ -51,45 +27,32 @@ def get_apiuser(request):
         print("No API User found.")
     ```
     """
-
-    no_api_user = False
-
+    none_flag = False
     try:
         # Attempt to retrieve APIUser associated with the user in the request
         api_user = APIUser.objects.get(user=request.user)
 
         # Check if the username is None
         if api_user.user.username is None:
-            no_api_user = True
+            none_flag = True
 
     except APIUser.DoesNotExist:
         # APIUser not found
-        no_api_user = True
+        none_flag = True
 
     except Exception as e:
         # Other unexpected errors
-        no_api_user = True
+        none_flag = True
 
-    if no_api_user:
+    if none_flag:
         # Log a message and return 404 status if no APIUser is found
-        print(f'[OPERATION-REQUIRED] No API User Found for: {request.user.username}...\n')
+        print(f'[Not Found] No API User Found for: {request.user.username}...\n')
         return 404
 
     # Log success and return the APIUser object
     print('[SUCCESS] Found API User! -- USERNAME:', api_user.user.username, end='\n')
     return api_user
 
-'''rollback code
-# # Check if Token has Expired
-# def has_expired(api_user):
-#     existed_for = time.time() - api_user.get().issued_time        
-#     if existed_for >= 3700:
-#         print('[OPERATION-REQUIRED] Your Bearer Token has Expired-- Do not worry!\nATTEMPTING REFRESHING OF BEARER TOKEN...\n')
-#         return True
-#     else:
-#         print('[SUCCESS] Current API User Bearer Token is VALID!')
-#         return False
-'''
 def has_expired(api_user):
     """
     Check if the Bearer Token associated with the given APIUser has expired.
@@ -129,45 +92,6 @@ def has_expired(api_user):
         print('[SUCCESS] Current API User Bearer Token is VALID!')
         return False
 
-'''rollback code
-# # Call FortiAuthenticator to Refresh API User's Token
-# def refresh_token(api_user):
-#     # Get API User Refresher Token from Db
-#     refresh_token = api_user.get().refresh_token
-
-#     # Define Auth URL
-#     auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
-
-#     # Define Request Headers
-#     headers = {
-#         'Content-Type': 'application/json',
-#     }
-
-#     # Define JSON Payload
-#     payload = {            
-#         'client_id': settings.CLIENT_ID,
-#         'grant_type': 'refresh_token',
-#         'refresh_token': refresh_token
-#     }
-
-#     # Setup Session
-#     session = requests.Session() # Provides Connection Pooling Persistence
-#     session.verify = False # Disable Verification
-#     session.trust_env = False # Prevent Tracking
-
-#     try:
-#         # Make a (Refresher) FortiAuthenticator Request
-#         response = session.request('post', auth_url, headers=headers, json=payload, verify=False) # NOTE VERIFY SHOULD BE TRUE
-#         if response.status_code == 200:
-#             print('[SUCCESS] FortiAuthenticator Issued a API User Refreshed Bearer Token!-- ', f'RESPONSE STATUS CODE: {response.status_code}\n')
-#             return response
-#         else:
-#             print('[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token-- ', f'RESPONSE STATUS CODE: {response.status_code}\n')
-#             return response
-#     except Exception as e:
-#         print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\n{e}\n')
-#         return 404
-'''
 def refresh_token(api_user):
     """
     Refresh the API User's Bearer Token by making a request to FortiAuthenticator.
@@ -231,43 +155,6 @@ def refresh_token(api_user):
         print(f'[ERROR] FortiAuthenticator was Unable to Refresh API User Bearer Token...\n{e}\n')
         return 404
 
-'''rollback code
-# # Create a NEW API User object
-# def auth_credentials():
-#     # Define Auth URL
-#     auth_url = "https://customerapiauth.fortinet.com/api/v1/oauth/token/"
-
-#     # Define Request Headers
-#     headers = {
-#         'Content-Type': 'application/json',
-#     }
-
-#     # Define JSON Payload
-#     payload = {
-#         'username': settings.API_KEY,
-#         'password': settings.PASSWORD,
-#         'client_id': settings.CLIENT_ID,
-#         'grant_type': 'password',
-#     }
-
-#     # Setup Session
-#     session = requests.Session() # Provides Connection Pooling Persistence
-#     session.verify = False # Disable Verification
-#     session.trust_env = False # Prevent Tracking
-
-#      # Calls FortiAuthenticator API POST Request        
-#     try:
-#         response = session.request('post', auth_url, headers=headers, json=payload, verify=False)
-#         if response.status_code == 200:
-#             print('[SUCCESS] FortiAuthenticator Authorized Bearer & Refresher Tokens-- ', response.status_code, end='\n')
-#             return response
-#         else:
-#             print('[ERROR] FortiAuthenticator was Unable to Authorize Bearer & Refresher Tokens-- ', {response.status_code}, end='\n')
-#             return response.status_code
-#     except Exception as e:
-#         print(f'[ERROR] FortiAuthenticator Unable to Authenticate User Credentials...\nUnexpected Error: {e}\n')
-#         return 404
-'''
 def auth_credentials():
     """
     Authenticate credentials with FortiAuthenticator to obtain Bearer and Refresher Tokens.
@@ -323,29 +210,6 @@ def auth_credentials():
         print(f'[ERROR] FortiAuthenticator Unable to Authenticate User Credentials...\nUnexpected Error: {e}\n')
         return 404
 
-'''rollback code
-# # Create a new API User Object & Save to Db
-# def create_apiuser(request, response):
-#         # Create API User Object
-#         api_user = APIUser(
-#             user = request.user, 
-#             issued_time = time.time(),
-#             access_token = response.json()['access_token'], 
-#             expires_in = response.json()['expires_in'],
-#             token_type = response.json()['token_type'],
-#             scope = response.json()['scope'],
-#             refresh_token = response.json()['refresh_token'],
-#             message = response.json()['message'],
-#             status = response.json()['status'])
-        
-#         # Check for Already existing API User against current user(desired: no api user object present!)
-#         objects_to_remove = APIUser.objects.filter(user=request.user) # NOTE Test Purposes
-#         objects_to_remove.delete()
-
-#         # Save API Object to Database
-#         api_user.save()
-#         print('[SUCCESS] Created API User!')
-'''
 def create_apiuser(request, response):
     """
     Create a new APIUser object and save it to the database.
@@ -393,43 +257,6 @@ def create_apiuser(request, response):
     api_user.save()
     print('[SUCCESS] Created API User!')
 
-'''rollback code
-# # CHECK STATUS OF BEARER TOKEN
-# def status_token(request):
-#     # Check for API User
-#     api_user = get_apiuser(request)
-
-#     if api_user != 404:
-#         # Check API User Bearer Token Expiry
-#         expired = has_expired(api_user)
-#         # IF Token Expired attempt Refresh
-#         if expired:
-#             response = refresh_token(api_user)
-#             if response != 404:
-#                 print('[UPDATING] API User Bearer Token...')
-#                 # Update API User
-#                 api_user = APIUser.objects.filter(user=request.user)[0]
-#                 api_user.issued_time = time.time()      
-#                 api_user.access_token = response.json()['access_token']
-#                 api_user.refresh_token = response.json()['refresh_token']
-#                 api_user.save()
-#                 print('[SUCCESS] API User Updated!')
-#                 return True              
-#             else:
-#                 print('[FATAL] Response was 404!')
-#                 return False
-#         else:
-#             print('Token is VALID(not expired)!')
-#             return True     
-#     else:
-#         response = auth_credentials(request)
-#         if response != 404 and response.status_code:
-#             create_apiuser(request, response)
-#             print('\n\nAPI User Authorized & Created, Successfully Saved to Database!')
-#             return True
-#         else:
-#             return False
-'''
 def status_token(request):
     """
     Check and update the status of the API User's Bearer Token.
@@ -569,6 +396,7 @@ def api_call(request, serial_number, fos_area, payload):
 def read_serial_numbers(file_path):
     with open(file_path, 'r') as read_sn:
         return [sn.split('#')[0] for sn in read_sn.readlines()]
+
 def get_ipsec(request):
     # FortiOS API Path
     foc_api = 'api/v2/monitor/vpn/ipsec'
@@ -685,24 +513,21 @@ def get_interface(request, ipsec_obj):
                 interface = result.get('interface', '')
                 ipsec_obj.update_interface(interface)
 
-import requests
-from urllib.parse import urljoin
-
 def post_interface_switch(request):
     if request.method == 'POST':
-        tunnel_name = request.POST['tunnel_name']
-        tunnel_abbr = request.POST['tunnel_abbr']
-        serial_number = request.POST['serial_number']
-        tunnel_interface = request.POST['tunnel_interface']
+        tunnel_name = request.POST.get('tunnel_name')
+        tunnel_abbr = request.POST.get('tunnel_abbr')
+        serial_number = request.POST.get('serial_number')
+        tunnel_interface = request.POST.get('tunnel_interface')
 
         fos_area = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{tunnel_abbr}'
 
         print(f'serial_number: {serial_number}\nname: {tunnel_name}\ninterface: {tunnel_interface}')
 
         if tunnel_interface == 'wan1':
-            new_tunnel_interface = 'MTN'
+            new_tunnel_interface = 'wan2'
         elif tunnel_interface == 'wan2':
-            new_tunnel_interface = 'Vodacom'
+            new_tunnel_interface = 'wan1'
         else:
             new_tunnel_interface = 'No Interface'
 
@@ -727,5 +552,3 @@ def post_interface_switch(request):
             'tunnel_abbr': tunnel_abbr
         }
         return render(request, 'tunnel_overview.html', {'tunnel_data': tunnel_data})
-
-

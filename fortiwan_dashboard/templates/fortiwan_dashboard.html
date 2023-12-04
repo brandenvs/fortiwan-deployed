@@ -176,20 +176,20 @@
                         {% csrf_token %}
                         <div class="row g-2">
                             <div class="col-md-6 col-12">
-                                <label class="form-label" for="tunnel_name">IPsec Tunnel Name</label>
-                                <input type="text" class="form-control disab" name="tunnel_name" placeholder="non" value="" id="input-name" disabled>
+                                <label class="form-label">IPsec Tunnel Name</label>
+                                <input type="text" class="form-control disab" name="tunnel_name" placeholder="non" value="" id="input-name" readonly>
                             </div>
                             <div class="col-md-6 col-12">
-                                <label class="form-label" for="addr">IPsec Tunnel Abbreviation</label>
-                                <input type="text" class="form-control" name="tunnel_abbr" placeholder="non" value="" id="input-abbr" disabled>
+                                <label class="form-label">IPsec Tunnel Abbreviation</label>
+                                <input type="text" class="form-control" name="tunnel_abbr" placeholder="non" value="" id="input-abbr" readonly>
                             </div>
                             <div class="col-md-6 col-12">
-                                <label class="form-label" for="serial_number">Associated Serial Number</label>
-                                <input type="text" class="form-control" name="serial_number" placeholder="non" value="" id="input-serial-number" disabled>
+                                <label class="form-label">Associated Serial Number</label>
+                                <input type="text" class="form-control" name="serial_number" placeholder="non" value="" id="input-serial-number" readonly>
                             </div>
                             <div class="col-md-6 col-12">
-                                <label class="form-label" for="interface">Current Interface</label>
-                                <input type="text" class="form-control" name="tunnel_interface" placeholder="non" value="" id="input-interface" disabled>
+                                <label class="form-label">Current Interface</label>
+                                <input type="text" class="form-control" name="tunnel_interface" placeholder="non" value="" id="input-interface" readonly>
                             </div>
                             <div class="col-12 text-start">
                                 <input type="submit" class="btn btn-success" value="Confirm">
