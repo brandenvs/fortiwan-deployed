@@ -53,7 +53,7 @@ def create_new_user(request):
     
     # Render Initial Create User View
     return render(request, 'authentication/create_user.html')
-    
+
 # Create User Function(Redirects...)
 def user_create(request):
     if request.method == 'POST':
@@ -71,7 +71,7 @@ def user_create(request):
             # Save user to Db
             user.save()
             # Redirect user
-            return HttpResponseRedirect(reverse('monitoring:index'))
+            return HttpResponseRedirect(reverse('dashboard:home'))
         except Exception as ex:
             print(f'SOMETHING WENT WRONG!\nError:\n{str(ex)}')
             return render(request, 'authentication/user_create.html', {'error': str(ex)})
