@@ -2,13 +2,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from authentication.models import APIUser
+from .models import StandardUser
 
 # Custom UserProfile Model Called: UserProfile(default: see models.py)
 class UserProfileInLine(admin.StackedInline):
-    model = APIUser
+    model = StandardUser
     can_delete = False
-    verbose_name_plural = "user"
+    verbose_name_plural = "admins"
 
 # Class Inherits the BaseUserAdmin, which is UserAdmin within Django Framework
 class UserAdmin(BaseUserAdmin):
