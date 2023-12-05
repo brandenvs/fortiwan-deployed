@@ -22,14 +22,8 @@
         {% endif %}
     </div>
     <div class="card-footer">
-        <form action="{% url 'fortiwan_services:revert_interface' %}" method="post">
-            {% csrf_token %}
-            <input type="text" name="interface_before" value="{{ tunnel_data.interface_before }}" hidden>
-            <input type="text" name="tunnel_serial" value="{{ tunnel_data.serial }}" hidden>
-            <input type="text" name="tunnel_abbr" value="{{ tunnel_data.tunnel_abbr }}" hidden>
-            <input type="submit" class="btn btn-danger" title="Revert Interface back to {{ tunnel_data.interface_before|default:'non' }}?" value="Revert Changes?">
-            <a class="btn btn-success" href="{% url 'fortiwan_dashboard:home' %}">Continue...</a>
-        </form>
+        <a class="btn btn-success" href="{% url 'fortiwan_dashboard:home' %}">Continue...</a>
+        <a class="btn btn-danger" href="#NOT-YET" title="Revert Interface back to {{ tunnel_data.interface_before|default:'non' }}?">Revert Changes?</a>
     </div>
 </div>
 {% endblock %}
