@@ -29,6 +29,7 @@ class Interface:
         self.name = name
         self.type = type
         self.interface = interface
+
 # Firewall Model
 class IPsecVPN:
     def __init__(self, ip, name, comments, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface, src1, src2, src3, src4, dst1, dst2, serial_number):

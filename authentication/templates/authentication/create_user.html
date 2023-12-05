@@ -9,8 +9,8 @@
 
 <!--Body Content-->
 {% block content %}
-<p class="fs-3 fw-bolder">You do not have the permissions to register a new user!</p>
-<p class="fs-6 fw-light">If you believe that this message is a mistake? Please email <a href="mailto:branden-va-staden@outlook.com">Branden van Staden(click me).</a> </p>
+<!-- <p class="fs-3 fw-bolder">You do not have the permissions to register a new user!</p> -->
+<!-- <p class="fs-6 fw-light">If you believe that this message is a mistake? Please email <a href="mailto:branden-va-staden@outlook.com">Branden van Staden(click me).</a> </p> -->
     <div class="container">
         <form action="{% url 'authentication:create_new_user' %}" class="form-control align-items-center" method="post">
             {% csrf_token %}

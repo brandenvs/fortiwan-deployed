@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 def user_login(request):
     if request.user.is_authenticated:
         current_user = request.user
-        return render(request, 'authentication/login.html', {'current_user': current_user})
+        return HttpResponseRedirect(reverse('fortiwan_dashboard:home'))
     else:
         current_user = None
         return render(request, 'authentication/login.html')
