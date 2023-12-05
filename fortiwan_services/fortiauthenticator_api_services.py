@@ -1,7 +1,7 @@
 import requests, time, certifi, urllib3
 from requests import Request, Session
 from django.conf import settings
-from .models import APIUser
+from authentication.models import APIUser
 from . import models as vmc
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -290,7 +290,7 @@ def status_token(request):
     # Check for existing API User
     api_user = get_apiuser(request)
 
-    if api_user != 404:
+    if api_user:
         # Check API User Bearer Token Expiry
         expired = has_expired(api_user)
 
