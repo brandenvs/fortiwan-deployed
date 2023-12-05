@@ -3,7 +3,7 @@ from requests import Request, Session
 from django.conf import settings
 from .models import APIUser
 from . import models as vmc
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 
 session = urllib3.PoolManager(
@@ -372,8 +372,6 @@ def api_call(request, serial_number, fos_area, payload):
         print(f'\nCALLING({method}): ', api_url, end='\n')
         # response = session.request(str(method), api_url, headers=headers, json=payload)
         if method == 'get':
-            # req = Request('GET', api_url, data=payload, headers=headers)
-            # prepped = ses.prepare_request(req)
             resp = session.request(str(method), api_url)  
             # response = session.request(str(method), api_url)
         else:
@@ -409,7 +407,6 @@ def get_ipsec(request):
     print(f'\nremoved serial number: "{firewall_teraco}"\n')
 
     # Bearer Token Retrieval
-    api_user = APIUser.objects.get(user=request.user)   
         
     for sn in sns:
         # Make API Call
@@ -552,3 +549,27 @@ def post_interface_switch(request):
             'tunnel_abbr': tunnel_abbr
         }
         return render(request, 'tunnel_overview.html', {'tunnel_data': tunnel_data})
+
+def revert_interface(request):
+    if request.method == 'POST':
+        interface_before = request.POST.get('interface_before')
+        tunnel_serial = request.POST.get('tunnel_serial')
+        tunnel_abbr = request.POST.get('tunnel_abbr')
+
+        fos_area = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{tunnel_abbr}'
+
+        if interface_before == 'wan1':
+            new_tunnel_interface = 'wan2'
+        elif interface_before == 'wan2':
+            new_tunnel_interface = 'wan1'
+        else:
+            new_tunnel_interface = 'No Interface'
+
+        # Define JSON Payload
+        payload = {
+            'interface': new_tunnel_interface
+        }
+
+        response = api_call(request, tunnel_serial, fos_area, payload)
+        print(response.data.decode())
+        return HttpResponse(response.data.decode())
