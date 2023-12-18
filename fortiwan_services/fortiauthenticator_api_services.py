@@ -358,7 +358,9 @@ def api_call(request, serial_number, fos_area, payload):
     """
 
     # API URL Construction
-    base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
+    # base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
+    base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt'
+
     # api_url = urljoin(base_url, f'{serial_number}/{fos_area}')
     api_url = f'{base_url}/{serial_number}/{fos_area}'
 
