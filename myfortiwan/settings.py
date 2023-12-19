@@ -113,17 +113,20 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-STATICFILES_DIRS = [
-    os.path.join(STATIC_ROOT, 'css/'),
-    os.path.join(STATIC_ROOT, 'js/'),
-    os.path.join(STATIC_ROOT, 'res/')
-]
+# settings.py
+STATIC_URL = '/static/'
+STATIC_ROOT = '/home/fortiwan/fortiwanroot/site/Fortiwan-Deployed/static/'
+
+# STATICFILES_DIRS = [
+#     os.path.join(STATIC_ROOT, 'css/'),
+#     os.path.join(STATIC_ROOT, 'js/'),
+#     os.path.join(STATIC_ROOT, 'res/')
+# ]
+
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
