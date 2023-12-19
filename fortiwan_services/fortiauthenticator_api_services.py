@@ -356,7 +356,6 @@ def api_call(request, serial_number, fos_area, payload):
         print("API call unsuccessful.")
     ```
     """
-
     # API URL Construction
     # base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
     base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt'
@@ -575,3 +574,4 @@ def revert_interface(request):
         response = api_call(request, tunnel_serial, fos_area, payload)
         print(response.data.decode())
         return HttpResponse(response.data.decode())
+

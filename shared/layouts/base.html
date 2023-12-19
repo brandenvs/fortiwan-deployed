@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!--Render Page Title(Default)-->
-    <title>{% block title %}Fortiwan{% endblock %} BCFA</title>
+    <title>{% block title %}{% endblock %} BCFA</title>
 
     <!--Static Folder Served Directly(client)-->
     {% load static %}
@@ -98,15 +98,15 @@
                         <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z" />
                         <path
                             d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z" />
-                    </svg> Prototype.v1.0
+                    </svg> Prototype.v1.5
                 </div>
             </div>
-            <div class="col-md-3 col-12 d-flex justify-content-start align-items-center">
-                <p class="fs-1 text-subtle-primary">
-                    FortiWAN BCFA
+            <div class="col-md-6 col-12 d-flex justify-content-start align-items-center">
+                <p class="fs-3 text-info">
+                    Fortiwan BCFA - API Integration
                 </p>
             </div>
-            <div class="col-md-6 d-flex justify-content-center align-items-center">
+            <!-- <div class="col-md-6 d-flex justify-content-center align-items-center">
                 <ul class="nav nav-underline">
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == '/fortiwan-dashboard/' %}active{% endif %}"
@@ -125,8 +125,8 @@
                             href="{% url 'fortiwan_log:home' %}" title="Coming Soon!">Fortiwan Logs</a>
                     </li>
                 </ul>
-            </div>
-            <div class="col-md-3 d-flex justify-content-end align-items-center">
+            </div> -->
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
                 <div class="row">
                     <div class="dropdown">
                         <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -188,19 +188,22 @@
             </div>
         </div>
     </div>
-    <!--(CDN)Bootstrap-v5.3.2-->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-        crossorigin="anonymous"></script>
-    <!--(CDN)JQuery-v3.6.0-->
+
+    <!-- Toast Message v1.0 -->
+    <script src="{% static 'toast_alert.js' %}" crossorigin="anonymous"></script>
+
+    <!-- IPsec Dashboard v1.0 -->
+    <script src="{% static 'ipsec_dashboard.js' %}" crossorigin="anonymous"></script>
+
+    <!-- PopperJS v2.11.8 -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+
+    <!-- BootstrapJS v5.3.2 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+
+    <!--(CDN)JQuery-v3.6.4-->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <!-- JavaScript Template Block -->
     {% block javascript %}{% endblock %}
-
-
-</body>
-
-</html>
+</body></html>
