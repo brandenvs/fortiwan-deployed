@@ -9,5 +9,4 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     status_token(request)
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
-
     return render(request, 'fortiwan_dashboard.html', {'sns': sns})

@@ -9,6 +9,8 @@ app_name = 'fortiwan_services'
 urlpatterns = [
     path('check-for-token/', fortiauthenticator_api_services.status_token, name='status_token'),
     path('ipsec-vpn-foc-monitor/', fortiauthenticator_api_services.get_ipsec, name='get_ipsec'),
+    path('dynamic-fos-monitor/', fortiauthenticator_api_services.dynamic_get_ipsec, name='dynamic_get_ipsec'),
+
     path('ipsec-vpn-foc-configure/', fortiauthenticator_api_services.post_interface_switch, name='switch_interface'),
     path('ipsec-vpn-foc-revert/', fortiauthenticator_api_services.revert_interface, name='revert_interface'),
 ]

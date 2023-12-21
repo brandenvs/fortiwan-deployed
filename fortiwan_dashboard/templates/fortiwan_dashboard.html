@@ -26,12 +26,12 @@
         <div class="input-group mb-3">
             <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Type to search...">
             <datalist id="serial-numbers">
-                {% for sn in sns %}
-                    <option value="{{ sn }}">
-                {% endfor %}
+                {% for number, name in sns.items %}
+                <option value="{{ name }}">
+                    {% endfor %}
             </datalist>
-            <button class="btn btn-outline-secondary" type="button" id="search-tunnels">Button</button>
-          </div>
+            <button class="btn btn-outline-secondary" type="button" id="search-tunnels">Load Site</button>
+        </div>
         <div class="btn-toolbar mt-1" role="toolbar" aria-label="IPsec Toolbar">
             <div class="btn-group me-2 mt-1" role="group" aria-label="Sites">
                 <a href="#sites-working" id="sites-working" class="btn btn-primary">Working Sites</a>
@@ -222,7 +222,55 @@
             _toast = alertMsg('Retrieving working sites...', 'Please wait, this can take up to 1 minute!', 'info', 60000);
             _toast.show();
 
-            getWorkingSites( '{% url "fortiwan_services:get_ipsec" %}');
+            getAvailableSites('{% url "fortiwan_services:get_ipsec" %}');
+        });
+
+        // Attach a change event listener to the input field
+        $("#input-search-tunnel").on("change", function () {
+            var serialNumber = $(this).val();
+            _toast = alertMsg('Retrieving site...', serialNumber, 'info', 10000);
+            _toast.show();
+            // Get the selected name from the visible input field
+           
+
+            // Set the actual number in the hidden input field
+            $("#hidden-serial-number").val(serialNumber);
+
+            // Make an AJAX request
+            $.ajax({
+                type: "POST",
+                url: "{% url 'fortiwan_services:dynamic_get_ipsec' %}",
+                data: {
+                    'serial_number': serialNumber
+                },
+                headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+                dataType: 'json',
+                success: function (responseData) {
+                    buildTemplate(responseData);
+
+                    _toast = alertMsg('Retrieval Success!', 'Displaying site.', 'success', 10000);
+                    _toast.show();
+      
+     
+                },
+                error: function (error) {
+                    // Handle errors
+                    _toast = alertMsg('Whoops this is embarrassing.', 'Sorry this is a preview function!', 'error')
+                    _toast.show();
+
+                }
+            });
+        });
+        $('search-tunnels').click(function () {
+            $('#spinner').show();
+            $('#instructions').hide();
+
+            _toast = alertMsg('Retrieving site...', 'this might not work as expected yet!', 'info', 10000);
+            _toast.show();
+            // searchSerialNumber('{% url "fortiwan_services:dynamic_get_ipsec" %}')
+
         });
     });
 </script>

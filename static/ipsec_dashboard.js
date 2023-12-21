@@ -63,7 +63,7 @@ function buildTemplate(responseData) {
     });
 }
 
-function getWorkingSites(backend_url) {
+function getAvailableSites(backend_url) {
     // Make Server-side AJAX GET
     $.ajax({
         url: backend_url,
@@ -86,4 +86,7 @@ function getWorkingSites(backend_url) {
     });
 }
 
+function searchSerialNumber(serial_number) {
+    
+}
 
