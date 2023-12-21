@@ -414,8 +414,8 @@ def get_ipsec(request):
     view_data = {}
 
     # NOTE Bespoke Solution
-    firewall_teraco = sns.pop(0)
-    print(f'\nremoved serial number: "{firewall_teraco}"\n')
+    # firewall_teraco = sns.pop(0)
+    # print(f'\nremoved serial number: "{firewall_teraco}"\n')
 
     # Bearer Token Retrieval
         

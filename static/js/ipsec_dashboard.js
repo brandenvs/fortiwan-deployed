@@ -80,7 +80,7 @@ function getAvailableSites(backend_url) {
         },
         error: function () {
             // Handle errors
-            _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error')
+            _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error', 1000)
             _toast.show();
         }
     });
