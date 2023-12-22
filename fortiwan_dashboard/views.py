@@ -7,11 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def index(request):
-    return HttpResponseRedirect(reverse('fortiwan_dashboard:offline'))
     status_token(request)
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
 
     return render(request, 'fortiwan_dashboard.html', {'sns': sns})
-
-def offline(request):
-   return render(request, 'offline.html')
