@@ -27,10 +27,10 @@
             <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Type to search...">
             <datalist id="serial-numbers">
                 {% for number, name in sns.items %}
-                <option value="{{ name }}">
-                    {% endfor %}
+                    <option value="{{ name }}">
+                {% endfor %}
             </datalist>
-            <button class="btn btn-outline-secondary" type="button" id="search-tunnels">Load Site</button>
+            <!-- <button class="btn btn-outline-secondary" type="button" id="search-tunnels">Load Site</button> -->
         </div>
         <div class="btn-toolbar mt-1" role="toolbar" aria-label="IPsec Toolbar">
             <div class="btn-group me-2 mt-1" role="group" aria-label="Sites">
