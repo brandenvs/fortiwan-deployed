@@ -1,3 +1,28 @@
+async function getWorkingSites(authenticated) {
+    while (authenticated) {
+        // Make Server-side AJAX GET
+        $.ajax({
+            url: '{% url "fortiwan_services:get_ipsec" %}',
+            type: 'GET',
+            dataType: 'json',
+            success: function (responseData) {
+                // Hide spinner on success and display data
+                $('#spinner').hide();
+
+                buildTemplate(responseData);
+
+                _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
+                _toast.show();
+            },
+            error: function () {
+                // Handle errors
+                _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error')
+                _toast.show();
+            }
+        });
+    }
+}
+
 function buildTemplate(responseData) {
     // Loop through the list of VPN tunnels
     $.each(responseData, function (index, data) {
@@ -62,28 +87,3 @@ function buildTemplate(responseData) {
         $('#modal-container').append($model);
     });
 }
-
-function getWorkingSites(backend_url) {
-    // Make Server-side AJAX GET
-    $.ajax({
-        url: backend_url,
-        type: 'GET',
-        dataType: 'json',
-        success:  function (responseData) {
-            // Hide spinner on success and display data
-            $('#spinner').hide();
-
-            buildTemplate(responseData);
-
-            _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
-            _toast.show();
-        },
-        error: function () {
-            // Handle errors
-            _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error')
-            _toast.show();
-        }
-    });
-}
-
-

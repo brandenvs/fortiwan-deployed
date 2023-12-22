@@ -1,0 +1,27 @@
+<!--Fetch_Layout File-->
+{% extends 'base.html' %}
+
+<!--Set Tab Title-->
+{% block title %}Dashboard - Fortiwan{% endblock %}
+
+{% block app_title %}Welcome to Fortiwan BCFA{% endblock %}
+
+{% block app_subtitle %}A WebApp derived from the FortiOS REST API.{% endblock %}
+
+{% block current_location %}Dashboard{% endblock %}
+
+<!--Body Content-->
+{% block content %}
+  <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-action active">The current link item</a>
+      <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+      <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+      <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+      <a class="list-group-item list-group-item-action disabled" aria-disabled="true">A disabled link item</a>
+  </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+  </script>
+{% endblock javascript %}

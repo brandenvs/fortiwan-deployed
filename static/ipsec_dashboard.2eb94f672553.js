@@ -1,4 +1,4 @@
-function buildTemplate(responseData) {
+async function buildTemplate(responseData) {
     // Loop through the list of VPN tunnels
     $.each(responseData, function (index, data) {
         // Clone the template for each VPN tunnel
@@ -69,11 +69,11 @@ function getWorkingSites(backend_url) {
         url: backend_url,
         type: 'GET',
         dataType: 'json',
-        success:  function (responseData) {
+        success: async function (responseData) {
             // Hide spinner on success and display data
             $('#spinner').hide();
 
-            buildTemplate(responseData);
+            await buildTemplate(responseData);
 
             _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
             _toast.show();

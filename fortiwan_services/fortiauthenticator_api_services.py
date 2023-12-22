@@ -6,12 +6,9 @@ from . import models as vmc
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 
-
-def get_session():
-    session = urllib3.PoolManager(
+session = urllib3.PoolManager(
         cert_reqs="CERT_REQUIRED",
         ca_certs=certifi.where())
-    return session
 
 def get_apiuser(request):
     """
@@ -328,7 +325,7 @@ def status_token(request):
         else:
             return False
 
-def api_call(request, method, serial_number, fos_area, payload):
+def api_call(request, serial_number, fos_area, payload):
     """
     Make an authenticated API call to the FortiCloud API.
 
@@ -359,8 +356,6 @@ def api_call(request, method, serial_number, fos_area, payload):
         print("API call unsuccessful.")
     ```
     """
-    session = get_session() # NOTE Use Db in v2
-
     # API URL Construction
     # base_url = 'https://api.fortigate.forticloud.com/forticloudapi/v1/fgt'
     base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt'
@@ -374,9 +369,14 @@ def api_call(request, method, serial_number, fos_area, payload):
     
     # Make API Request (GET or POST)
     try:
+        method = 'get' if request.method == 'GET' else 'put' # Sleek
         print(f'\nCALLING({method}): ', api_url, end='\n')
         # response = session.request(str(method), api_url, headers=headers, json=payload)
-        resp = session.request(str(method), api_url, json=payload)
+        if method == 'get':
+            resp = session.request(str(method), api_url)  
+            # response = session.request(str(method), api_url)
+        else:
+            resp = session.request(str(method), api_url, json=payload)
         # Uncomment the following line for testing purposes
         # print(response.data.decode())
     except Exception as e:
@@ -392,20 +392,10 @@ def api_call(request, method, serial_number, fos_area, payload):
         return None
 
 def read_serial_numbers(file_path):
-    sns_dict = {}
     with open(file_path, 'r') as read_sn:
-
-        for sn in read_sn.readlines():
-            sn_split = sn.split('#')
-            serial_number = sn_split[0].strip()
-            serial_name = sn_split[1].strip()
-            sns_dict.update({ serial_number: serial_name })
-    return sns_dict
-
-        # return [sn.split('#')[0] for sn in read_sn.readlines()]
+        return [sn.split('#')[0] for sn in read_sn.readlines()]
 
 def get_ipsec(request):
-    status_token(request)
     # FortiOS API Path
     foc_api = 'api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid'
 
@@ -419,9 +409,9 @@ def get_ipsec(request):
 
     # Bearer Token Retrieval
         
-    for sn in sns.keys():
+    for sn in sns:
         # Make API Call
-        response = api_call(request, 'get', sn, foc_api, None)
+        response = api_call(request, sn, foc_api, None)
             
         if response and response.status == 200:
             # Extract Result Data
@@ -500,6 +490,7 @@ def get_ipsec(request):
             }
             view_data[ipsec_obj.name] = view_obj
     
+    session.clear()
     # for key,val in session.pools.items():
     #     print(key, val)
     # # Return JSON Data to View
@@ -512,7 +503,7 @@ def get_interface(request, ipsec_obj):
     name_split = str(name_split).split('_')
 
     if len(name_split) <= 2:
-        response_interface = api_call(request, 'get', ipsec_obj.serial_number, fos_api, None)
+        response_interface = api_call(request, ipsec_obj.serial_number, fos_api, None)
         if response_interface is not None:
             # Extract Result Data
             results = response_interface.json().get('results', [])
@@ -543,7 +534,7 @@ def post_interface_switch(request):
             'interface': new_tunnel_interface
         }
 
-        response = api_call(request, 'post', serial_number, fos_area, payload)
+        response = api_call(request, serial_number, fos_area, payload)
         response_json = response.json()
         print(response_json)
 
@@ -580,111 +571,7 @@ def revert_interface(request):
             'interface': new_tunnel_interface
         }
 
-        response = api_call(request, 'post', tunnel_serial, fos_area, payload)
+        response = api_call(request, tunnel_serial, fos_area, payload)
         print(response.data.decode())
         return HttpResponse(response.data.decode())
 
-def dynamic_get_ipsec(request):
-    status_token(request)
-    # FortiOS API Path
-    foc_api = 'api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid'
-
-    ipsec_objs = []
-    view_data = {}
-
-    serial_name = request.POST.get('serial_number')
-    print(serial_name)
-    sns = read_serial_numbers('static/res/device_serial_numbers.txt')
-
-    serial_number = None
-    for key, val in sns.items():
-        print(key, val)
-        
-        if str(val).lower() == str(serial_name).lower():
-            serial_number = key
-    print(serial_number)
-    # Bearer Token Retrieval
-    # Make API Call
-    response = api_call(request, 'get', serial_number, foc_api, None)
-            
-    if response and response.status == 200:
-        # Extract Result Data
-        results = response.json().get('results', [])
-
-        # Handle Proxy Data
-        for result in results:
-            tunnel_proxy = result.get('proxyid', [])
-            # Normalize Result Data
-            core_in = round(result.get('incoming_bytes', 0) / (1024.0 * 1024.0))
-            core_out = round(result.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
-            core_ip = result.get('tun_id', '')
-            core_name = result.get('name', '')
-            core_comm = result.get('comments', '')
-
-            # Normalize Proxy Data
-            proxy_data = tunnel_proxy[0] if tunnel_proxy else {}
-            proxy_in = round(proxy_data.get('incoming_bytes', 0) / (1024.0 * 1024.0))
-            proxy_out = round(proxy_data.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
-            proxy_status = proxy_data.get('status', 'No Proxy Configured!')
-            proxy_parent = proxy_data.get('p2name', 'No Proxy Configured!')
-
-            # Normalize Subnets
-            source_subnets = [source['subnet'] for source in proxy_data.get('proxy_src', [])]
-            destination_subnets = [destination['subnet'] for destination in proxy_data.get('proxy_dst', [])]
-
-            # Sort Subnets
-            source_subnets.sort()
-            destination_subnets.sort()
-            # Create IPsec/VPN object
-            ipsec_obj = vmc.IPsecVPN(
-                    ip=core_ip,
-                    name=str(core_name).upper(),
-                    comments=str(core_comm),
-                    status=str(proxy_status).upper(),
-                    incoming_core=core_in,
-                    outgoing_core=core_out,
-                    p2name=proxy_parent,
-                    incoming_tunnel=proxy_in,
-                    outgoing_tunnel=proxy_out,
-                    interface='non',
-                    src1=source_subnets[0] if source_subnets else '--',
-                    src2=source_subnets[1] if len(source_subnets) > 1 else '--',
-                    src3=source_subnets[2] if len(source_subnets) > 2 else '--',
-                    src4=source_subnets[3] if len(source_subnets) > 3 else '--',
-                    dst1=destination_subnets[0] if destination_subnets else '--',
-                    dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
-                    serial_number=serial_number
-                )                
-            get_interface(request, ipsec_obj)
-
-            # Append IPsec/VPN object
-            ipsec_objs.append(ipsec_obj)
-        else:
-            print(f'Tunnel Not Connected for SN: {serial_number}')
-
-        # Sort IPsecVPN objects
-        sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
-
-        # Update View Data
-        for ipsec_obj in sorted_ipsec_objs:
-            view_obj = {
-                'ip': ipsec_obj.ip,
-                'name': ipsec_obj.name,
-                'comments': ipsec_obj.comments,
-                'status': ipsec_obj.status,
-                'incoming_core': ipsec_obj.incoming_core,
-                'outgoing_core': ipsec_obj.outgoing_core,
-                'p2name': ipsec_obj.p2name,
-                'incoming_tunnel': ipsec_obj.incoming_tunnel,
-                'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
-                'interface': ipsec_obj.interface,
-                'src1': ipsec_obj.src1, 'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
-                'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2,
-                'serial_number': ipsec_obj.serial_number
-            }
-            view_data[ipsec_obj.name] = view_obj
-    
-    # for key,val in session.pools.items():
-    #     print(key, val)
-    # # Return JSON Data to View
-    return JsonResponse(view_data)

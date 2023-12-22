@@ -63,7 +63,7 @@ function buildTemplate(responseData) {
     });
 }
 
-function getAvailableSites(backend_url) {
+function getWorkingSites(backend_url) {
     // Make Server-side AJAX GET
     $.ajax({
         url: backend_url,
@@ -86,41 +86,4 @@ function getAvailableSites(backend_url) {
     });
 }
 
-
-function searchSerialNumber(backend_url) {    
-    $.ajax({
-        url: 'backend_url',
-        type: 'POST',
-        data: {
-            'sn': $('#input-search-tunnel').val(),
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        success: function(response) {
-            console.log(response);
-        },
-        error: function(xhr) {
-            console.log(xhr.responseText);
-        }
-    });
-    
-    $.ajax({
-        url: backend_url,
-        type: 'POST',
-        dataType: 'json',
-        success:  function (responseData) {
-            // Hide spinner on success and display data
-            $('#spinner').hide();
-
-            buildTemplate(responseData);
-
-            _toast = alertMsg('Retrieval Success!', 'Displaying site.', 'success', 10000);
-            _toast.show();
-        },
-        error: function () {
-            // Handle errors
-            _toast = alertMsg('Whoops this is embarrassing.', 'Sorry this is a preview function!', 'error')
-            _toast.show();
-        }
-    });
-}
 
