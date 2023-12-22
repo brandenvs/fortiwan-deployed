@@ -1,15 +1,18 @@
-function buildTemplate(responseData) {
+function buildIPsecTemplate(responseData) {
+    // Create an array to store the modified templates
+    var modifiedTemplates = [];
+
+    // Clone the template for each VPN tunnel
+    var $template = $('#ipsec-template').clone();
+
     // Loop through the list of VPN tunnels
     $.each(responseData, function (index, data) {
-        // Clone the template for each VPN tunnel
-        var $template = $('#ipsec-template').clone();
-        var $model = $('#interface-modal').clone();
-        var comment = '';
+        var comment = ' ';
 
         if (data.comments == '') {
             comment = '--';
         } else {
-            comment = data.comments
+            comment = data.comments;
         }
 
         // IPsec Tunnel Data
@@ -23,23 +26,42 @@ function buildTemplate(responseData) {
         $template.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel); // IPsec/VPN Tunnel Incoming Traffic
         $template.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel); // IPsec/VPN Tunnel Outgoing Traffic
         $template.find('#card-footer').text(data.username); // IPsec/VPN Tunnel Parent
+
         // IPsec Proxy Data - src
         $template.find('#ipsec-src1').text(data.src1);
         $template.find('#ipsec-src2').text(data.src2);
         $template.find('#ipsec-src3').text(data.src3);
         $template.find('#ipsec-src4').text(data.src4);
+
         // IPsec Proxy Data - dst
         $template.find('#ipsec-dst1').text(data.dst1);
         $template.find('#ipsec-dst2').text(data.dst2);
+
         // IPsec Interface Data
         $template.find('#ipsec-interface').text(data.interface);
         if (data.interface == 'none') {
             $template.find('#launch-modal').hide();
         }
-
         var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
 
-        $template.find('#launch-modal').attr('href', '#' + interface_modal_id);
+        $template.find('#launch-modal').attr('href', '#' + interface_modal_id); 
+
+        // Remove the hidden Attribute from Template
+        $template.removeAttr('hidden');
+
+        // Push the modified template to the array
+        modifiedTemplates.push($template.clone());
+    });
+
+    // Return the array of modified templates
+    return modifiedTemplates;
+}
+
+function buildInterfaceModel(modelData) {
+    // Loop through the list of VPN tunnels
+    $.each(responseData, function (index, data) {
+        var $model = $('#interface-modal').clone();
+        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
 
         $model.attr('id', interface_modal_id);
         $model.find('#modal-title').text('Interface Switch for ' + data.name);
@@ -53,27 +75,21 @@ function buildTemplate(responseData) {
         $model.find('#input-abbr').attr('value', data.name);
         $model.find('#input-serial-number').attr('value', data.serial_number);
         $model.find('#input-interface').attr('value', data.interface)
-
-        // Remove the hidden Attribute from Template
-        $template.removeAttr('hidden');
-
-        // Populate the IPsec & Model Containers
-        $('#ipsec-container').append($template);
-        $('#modal-container').append($model);
     });
 }
 
-function getWorkingSites(backend_url) {
+function getAvailableSites(backend_url, callback) {
     // Make Server-side AJAX GET
     $.ajax({
         url: backend_url,
         type: 'GET',
         dataType: 'json',
-        success:  function (responseData) {
+        success: function (responseData) {
             // Hide spinner on success and display data
             $('#spinner').hide();
 
-            buildTemplate(responseData);
+            // Call the callback function with the responseData
+            callback(responseData);
 
             _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
             _toast.show();
@@ -86,4 +102,25 @@ function getWorkingSites(backend_url) {
     });
 }
 
+function searchSerialNumber(backend_url) {
+    $.ajax({
+        url: backend_url,
+        type: 'POST',
+        dataType: 'json',
+        success: function (responseData) {
+            $('#spinner').hide();
+
+            _toast = alertMsg('Retrieval Success!', 'Displaying site...', 'success', 10000);
+            _toast.show();
+
+            var template = buildTemplate(responseData);
+            return template
+        },
+        error: function () {
+            // Handle errors
+            _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error', 1000)
+            _toast.show();
+        }
+    });
+}
 

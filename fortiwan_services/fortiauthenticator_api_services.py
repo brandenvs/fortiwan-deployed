@@ -1,12 +1,12 @@
 import requests, time, certifi, urllib3
-from requests import Request, Session
 from django.conf import settings
 from .models import APIUser
 from . import models as vmc
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 
-session = urllib3.PoolManager(
+def get_session():
+    session = urllib3.PoolManager(
         cert_reqs="CERT_REQUIRED",
         ca_certs=certifi.where())
 
@@ -461,7 +461,7 @@ def get_ipsec(request):
                         dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
                         serial_number=sn
                     )                
-                get_interface(request, ipsec_obj)
+                # get_interface(request, ipsec_obj)
 
                 # Append IPsec/VPN object
                 ipsec_objs.append(ipsec_obj)
