@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from decouple import config
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85'
 
@@ -18,12 +18,9 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'corsheaders',
-    'fortiwan_services',
     'authentication',
-    'fortiwan_dashboard',
-    'fortiwan_monitor',
-    'fortiwan_config',
-    'fortiwan_log',
+    'services',   
+    'ipsec_dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,7 +61,7 @@ ROOT_URLCONF = 'myfortiwan.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'shared/layouts')],
+        'DIRS': [os.path.join(BASE_DIR.parent, 'shared/layouts')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,23 +112,22 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL =  'static/'
 
-# settings.py
-STATIC_URL = '/static/'
-STATIC_ROOT = '/home/fortiwan/fortiwanroot/site/Fortiwan-Deployed/static/'
+# STATIC_ROOT = '/home/fortiwan/fortiwanroot/site/Fortiwan-Deployed/static/'
+STATIC_ROOT = os.path.join(BASE_DIR.parent.relative_to(BASE_DIR.parent), 'static/') 
 
-# STATICFILES_DIRS = [
-#     os.path.join(STATIC_ROOT, 'css/'),
-#     os.path.join(STATIC_ROOT, 'js/'),
-#     os.path.join(STATIC_ROOT, 'res/')
-# ]
+STATICFILES_DIRS = [
+    os.path.join(STATIC_ROOT, 'css/'),
+    os.path.join(STATIC_ROOT, 'js/'),
+    os.path.join(STATIC_ROOT, 'res/') 
+]
 
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Load environment variables from the .env file
-CONFIG_PATH = os.path.join(BASE_DIR, '.env')
+CONFIG_PATH = os.path.join(BASE_DIR.parent, '.env')
 config._find_file(CONFIG_PATH)
 
 # Load environment variables
