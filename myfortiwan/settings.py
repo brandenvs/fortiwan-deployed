@@ -1,27 +1,26 @@
 from pathlib import Path
 import os
+from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['brandenvanstaden.co.za', 'https://brandenvanstaden.co.za', '51.68.220.41', 'localhost', '127.0.0.1']
-
-
-# Application definition
+ALLOWED_HOSTS = [
+    'https://fortiapi.bcfa.co.za',
+    'fortiapi.bcfa.co.za',
+    '51.68.220.41', 
+    'localhost', 
+    '127.0.0.1'
+]
 
 INSTALLED_APPS = [
     'corsheaders',
     'authentication',
-    'fortiwan_dashboard',
-    'fortiwan_monitor',
-    'fortiwan_config',
-    'fortiwan_log',
+    'services',   
+    'ipsec_dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,21 +42,26 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Security & HTTPS settings
-
+# Cookies
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = False
 
+'''APPLICATION SECURITY SETTINGS'''
+# CORS Policy
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ['https://brandenvanstaden.co.za']
+
+# CSRF Tokenization
+CSRF_TRUSTED_ORIGINS = ['https://fortiapi.bcfa.co.za/']
+CSRF_COOKIE_SECURE = True
+
+# SSL Redirect
+SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = 'myfortiwan.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'shared/layouts')],
+        'DIRS': [os.path.join(BASE_DIR.parent, 'shared/layouts')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,7 +87,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -107,11 +110,29 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-FORTIWAN_SECRET_TOKEN = os.environ.get('FORTIOS_REST_TOKEN')
+STATIC_URL =  'static/'
+
+# STATIC_ROOT = '/home/fortiwan/fortiwanroot/site/Fortiwan-Deployed/static/'
+STATIC_ROOT = os.path.join(BASE_DIR.parent.relative_to(BASE_DIR.parent), 'static/') 
+
+STATICFILES_DIRS = [
+    os.path.join(STATIC_ROOT, 'css/'),
+    os.path.join(STATIC_ROOT, 'js/'),
+    os.path.join(STATIC_ROOT, 'res/') 
+]
+
 # Use Whitenoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Load environment variables from the .env file
+CONFIG_PATH = os.path.join(BASE_DIR.parent, '.env')
+config._find_file(CONFIG_PATH)
+
+# Load environment variables
+ACCESS_TOKEN = config('ACCESS_TOKEN')
+API_KEY = config('API_KEY')
+PASSWORD = config('PASSWORD')
+CLIENT_ID = config('CLIENT_ID')
+INTERFACE_TOKEN = config('INTERFACE_TOKEN')
