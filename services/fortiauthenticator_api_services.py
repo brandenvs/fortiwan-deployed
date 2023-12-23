@@ -402,7 +402,7 @@ def read_serial_numbers(file_path):
 def get_ipsec(request):
     # FortiOS API Path
     foc_api = 'api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid'
-
+    status_token(request)
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
     ipsec_objs = []
     view_data = {}
@@ -411,89 +411,83 @@ def get_ipsec(request):
 
     print(f'\nremoved serial number: "{firewall_teraco}"\n')
 
-    responses  = service_api.get_sites(request, sns)
+    ipsec_objs  = service_api.get_sites(request, sns)
+    
     # Make API Call
     # response = api_call(request, sn, foc_api, None)
-    for response in responses:
-        if response.status_code == 200:
-            # Extract Result Data
-            results = response.json().get('results', [])
+    # for response in responses:
+    #     if response.status_code == 200:
+    #         # Extract Result Data
+    #         results = response.json().get('results', [])
+    #         # Handle Proxy Data
+    #         for result in results:
+    #             tunnel_proxy = result.get('proxyid', [])
+    #             # Normalize Result Data
+    #             core_in = round(result.get('incoming_bytes', 0) / (1024.0 * 1024.0))
+    #             core_out = round(result.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
+    #             core_ip = result.get('tun_id', '')
+    #             core_name = result.get('name', '')
+    #             core_comm = result.get('comments', '')
 
-            # Handle Proxy Data
-            for result in results:
-                tunnel_proxy = result.get('proxyid', [])
-                # Normalize Result Data
-                core_in = round(result.get('incoming_bytes', 0) / (1024.0 * 1024.0))
-                core_out = round(result.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
-                core_ip = result.get('tun_id', '')
-                core_name = result.get('name', '')
-                core_comm = result.get('comments', '')
+    #             # Normalize Proxy Data
+    #             proxy_data = tunnel_proxy[0] if tunnel_proxy else {}
+    #             proxy_in = round(proxy_data.get('incoming_bytes', 0) / (1024.0 * 1024.0))
+    #             proxy_out = round(proxy_data.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
+    #             proxy_status = proxy_data.get('status', 'No Proxy Configured!')
+    #             proxy_parent = proxy_data.get('p2name', 'No Proxy Configured!')
 
-                    # Normalize Proxy Data
-                proxy_data = tunnel_proxy[0] if tunnel_proxy else {}
-                proxy_in = round(proxy_data.get('incoming_bytes', 0) / (1024.0 * 1024.0))
-                proxy_out = round(proxy_data.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
-                proxy_status = proxy_data.get('status', 'No Proxy Configured!')
-                proxy_parent = proxy_data.get('p2name', 'No Proxy Configured!')
+    #             # Normalize Subnets
+    #             source_subnets = [source['subnet'] for source in proxy_data.get('proxy_src', [])]
+    #             destination_subnets = [destination['subnet'] for destination in proxy_data.get('proxy_dst', [])]
 
-                # Normalize Subnets
-                source_subnets = [source['subnet'] for source in proxy_data.get('proxy_src', [])]
-                destination_subnets = [destination['subnet'] for destination in proxy_data.get('proxy_dst', [])]
-
-                    # Sort Subnets
-                source_subnets.sort()
-                destination_subnets.sort()
-                # Create IPsec/VPN object
-                ipsec_obj = vmc.IPsecVPN(
-                        ip=core_ip,
-                        name=str(core_name).upper(),
-                        comments=str(core_comm),
-                        status=str(proxy_status).upper(),
-                        incoming_core=core_in,
-                        outgoing_core=core_out,
-                        p2name=proxy_parent,
-                        incoming_tunnel=proxy_in,
-                        outgoing_tunnel=proxy_out,
-                        interface='non',
-                        src1=source_subnets[0] if source_subnets else '--',
-                        src2=source_subnets[1] if len(source_subnets) > 1 else '--',
-                        src3=source_subnets[2] if len(source_subnets) > 2 else '--',
-                        src4=source_subnets[3] if len(source_subnets) > 3 else '--',
-                        dst1=destination_subnets[0] if destination_subnets else '--',
-                        dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
-                        serial_number='non'
-                    )                
-                # get_interface(request, ipsec_obj)
-
-                # Append IPsec/VPN object
-                ipsec_objs.append(ipsec_obj)
+    #             # Sort Subnets
+    #             source_subnets.sort()
+    #             destination_subnets.sort()
+    #             # Create IPsec/VPN object
+    #             ipsec_obj = vmc.Site(
+    #                     ip=core_ip,
+    #                     name=str(core_name).upper(),
+    #                     comments=str(core_comm),
+    #                     status=str(proxy_status).upper(),
+    #                     incoming_core=core_in,
+    #                     outgoing_core=core_out,
+    #                     p2name=proxy_parent,
+    #                     incoming_tunnel=proxy_in,
+    #                     outgoing_tunnel=proxy_out,
+    #                     interface='non',
+    #                     src1=source_subnets[0] if source_subnets else '--',
+    #                     src2=source_subnets[1] if len(source_subnets) > 1 else '--',
+    #                     src3=source_subnets[2] if len(source_subnets) > 2 else '--',
+    #                     src4=source_subnets[3] if len(source_subnets) > 3 else '--',
+    #                     dst1=destination_subnets[0] if destination_subnets else '--',
+    #                     dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
+    #                     serial_number='hidden'
+    #                 )
+    #             # Append IPsec/VPN object
+    #             ipsec_objs.append(ipsec_obj)
 
     # Sort IPsecVPN objects
     sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
 
     # Update View Data
-    for ipsec_obj in sorted_ipsec_objs:
+    for site_obj in sorted_ipsec_objs:
+        print(site_obj)
         view_obj = {
-            'ip': ipsec_obj.ip,
-            'name': ipsec_obj.name,
-            'comments': ipsec_obj.comments,
-            'status': ipsec_obj.status,
-            'incoming_core': ipsec_obj.incoming_core,
-            'outgoing_core': ipsec_obj.outgoing_core,
-            'p2name': ipsec_obj.p2name,
-            'incoming_tunnel': ipsec_obj.incoming_tunnel,
-            'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
-            'interface': ipsec_obj.interface,
-            'src1': ipsec_obj.src1, 'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
-            'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2,
-            'serial_number': ipsec_obj.serial_number
+            'ip': site_obj.ip,
+            'name': site_obj.name,
+            'comments': site_obj.comments,
+            'status': site_obj.status,
+            'incoming_core': site_obj.incoming_core,
+            'outgoing_core': site_obj.outgoing_core,
+            'p2name': site_obj.p2name,
+            'incoming_tunnel': site_obj.incoming_tunnel,
+            'outgoing_tunnel': site_obj.outgoing_tunnel,
+            'interface': site_obj.interface,
+            'src1': site_obj.src1, 'src2': site_obj.src2, 'src3': site_obj.src3, 'src4': site_obj.src4,
+            'dst1': site_obj.dst1, 'dst2': site_obj.dst2
         }
-        view_data[ipsec_obj.name] = view_obj
+        view_data[site_obj.name] = view_obj
     
-    # session.clear()
-    # for key,val in session.pools.items():
-    #     print(key, val)
-    # # Return JSON Data to View
     return JsonResponse(view_data)
 
 def get_interface(request, ipsec_obj):

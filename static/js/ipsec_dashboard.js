@@ -64,7 +64,7 @@ function buildIPsecTemplate(responseData) {
         $template.removeAttr('hidden');
 
         $('#ipsec-container').append($template);
-        $('modal-container').append($model)
+        $('#modal-container').append($model)
     });
 }
 
@@ -77,7 +77,8 @@ function getAvailableSites(backend_url, callback) {
         success: function (responseData) {
             // Hide spinner on success and display data
             $('#spinner').hide();       
-
+            
+            console.log(responseData.interface);
             buildIPsecTemplate(responseData);
 
             _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
