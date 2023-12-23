@@ -59,7 +59,6 @@
         <div class="row g-2" id="ipsec-container"></div>
     </div>
 </div>
-{% endblock %}
 
 <!-- JQuery Templates -->
 
@@ -214,6 +213,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+
 
 <!-- Django Template JavaScript -->
 {% block javascript %}
@@ -231,14 +233,9 @@
             _toast.show();
 
             // Use the getAvailableSites function with a callback
-            getAvailableSites('{% url "services:get_ipsec" %}', function (templates) {
-                // Iterate through templates and append to the container
-                $.each(templates, function (index, template) {
-                    $('#ipsec-container').append($template);
-                    var ipsecName = $template.find('#ipsec-name').text();
-                });
+            getAvailableSites('{% url "services:get_ipsec" %}')
             });
         });
-    });   
+
 </script>
 {% endblock javascript %}

@@ -1,14 +1,13 @@
 function buildIPsecTemplate(responseData) {
-    // Create an array to store the modified templates
-    var modifiedTemplates = [];
-
-    // Clone the template for each VPN tunnel
-    var $template = $('#ipsec-template').clone();
-
     // Loop through the list of VPN tunnels
     $.each(responseData, function (index, data) {
-        var comment = ' ';
+        // Clone the template for each VPN tunnel
+        var $template = $('#ipsec-template').clone();
 
+        var comment = ' ';
+        
+        console.log(index, data)
+        
         if (data.comments == '') {
             comment = '--';
         } else {
@@ -37,44 +36,35 @@ function buildIPsecTemplate(responseData) {
         $template.find('#ipsec-dst1').text(data.dst1);
         $template.find('#ipsec-dst2').text(data.dst2);
 
-        // IPsec Interface Data
-        $template.find('#ipsec-interface').text(data.interface);
-        if (data.interface == 'none') {
-            $template.find('#launch-modal').hide();
-        }
-        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
+        // if (data.interface == 'none') {
+        //     $template.find('#launch-modal').hide();
+        // }
 
-        $template.find('#launch-modal').attr('href', '#' + interface_modal_id); 
-
-        // Remove the hidden Attribute from Template
-        $template.removeAttr('hidden');
-
-        // Push the modified template to the array
-        modifiedTemplates.push($template.clone());
-    });
-
-    // Return the array of modified templates
-    return modifiedTemplates;
-}
-
-function buildInterfaceModel(modelData) {
-    // Loop through the list of VPN tunnels
-    $.each(responseData, function (index, data) {
-        var $model = $('#interface-modal').clone();
-        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
-
-        $model.attr('id', interface_modal_id);
-        $model.find('#modal-title').text('Interface Switch for ' + data.name);
-
+        // Site's IPsec tunnel interface
         var to = 'wan1';
         if (data.interface == 'wan1') {
             to = 'wan2'
         }
+
+        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
+        $template.find('#launch-modal').attr('href', '#' + interface_modal_id);
+
+        var $model = $('#interface-modal').clone();
+
+        var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
+        $model.attr('id', interface_modal_id);
+        $model.find('#modal-title').text('Interface Switch for ' + data.name);
+
         $model.find('#interface-desc').text('Are you sure you want switch ' + comment + ' from ' + data.interface + ' to ' + to + '?');
         $model.find('#input-name').attr('value', comment);
         $model.find('#input-abbr').attr('value', data.name);
         $model.find('#input-serial-number').attr('value', data.serial_number);
         $model.find('#input-interface').attr('value', data.interface)
+
+        $template.removeAttr('hidden');
+
+        $('#ipsec-container').append($template);
+        $('modal-container').append($model)
     });
 }
 
@@ -86,10 +76,9 @@ function getAvailableSites(backend_url, callback) {
         dataType: 'json',
         success: function (responseData) {
             // Hide spinner on success and display data
-            $('#spinner').hide();
+            $('#spinner').hide();       
 
-            // Call the callback function with the responseData
-            callback(responseData);
+            buildIPsecTemplate(responseData);
 
             _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
             _toast.show();

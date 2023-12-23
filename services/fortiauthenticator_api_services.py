@@ -407,17 +407,15 @@ def get_ipsec(request):
     ipsec_objs = []
     view_data = {}
 
-    # NOTE Bespoke Solution
-    # firewall_teraco = sns.pop(0)
-    # print(f'\nremoved serial number: "{firewall_teraco}"\n')
+    firewall_teraco = sns.pop(0)
 
-    # Bearer Token Retrieval
-        
-    for sn in sns:
-        # Make API Call
-        response = api_call(request, sn, foc_api, None)
-            
-        if response and response.status == 200:
+    print(f'\nremoved serial number: "{firewall_teraco}"\n')
+
+    responses  = service_api.get_sites(request, sns)
+    # Make API Call
+    # response = api_call(request, sn, foc_api, None)
+    for response in responses:
+        if response.status_code == 200:
             # Extract Result Data
             results = response.json().get('results', [])
 
@@ -431,7 +429,7 @@ def get_ipsec(request):
                 core_name = result.get('name', '')
                 core_comm = result.get('comments', '')
 
-                 # Normalize Proxy Data
+                    # Normalize Proxy Data
                 proxy_data = tunnel_proxy[0] if tunnel_proxy else {}
                 proxy_in = round(proxy_data.get('incoming_bytes', 0) / (1024.0 * 1024.0))
                 proxy_out = round(proxy_data.get('outgoing_bytes', 0) / (1024.0 * 1024.0))
@@ -442,7 +440,7 @@ def get_ipsec(request):
                 source_subnets = [source['subnet'] for source in proxy_data.get('proxy_src', [])]
                 destination_subnets = [destination['subnet'] for destination in proxy_data.get('proxy_dst', [])]
 
-                 # Sort Subnets
+                    # Sort Subnets
                 source_subnets.sort()
                 destination_subnets.sort()
                 # Create IPsec/VPN object
@@ -463,38 +461,36 @@ def get_ipsec(request):
                         src4=source_subnets[3] if len(source_subnets) > 3 else '--',
                         dst1=destination_subnets[0] if destination_subnets else '--',
                         dst2=destination_subnets[1] if len(destination_subnets) > 1 else '--',
-                        serial_number=sn
+                        serial_number='non'
                     )                
                 # get_interface(request, ipsec_obj)
 
                 # Append IPsec/VPN object
                 ipsec_objs.append(ipsec_obj)
-        else:
-            print(f'Tunnel Not Connected for SN: {sn}')
 
-        # Sort IPsecVPN objects
-        sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
+    # Sort IPsecVPN objects
+    sorted_ipsec_objs = sorted(ipsec_objs, key=lambda x: x.outgoing_tunnel, reverse=True)    
 
-        # Update View Data
-        for ipsec_obj in sorted_ipsec_objs:
-            view_obj = {
-                'ip': ipsec_obj.ip,
-                'name': ipsec_obj.name,
-                'comments': ipsec_obj.comments,
-                'status': ipsec_obj.status,
-                'incoming_core': ipsec_obj.incoming_core,
-                'outgoing_core': ipsec_obj.outgoing_core,
-                'p2name': ipsec_obj.p2name,
-                'incoming_tunnel': ipsec_obj.incoming_tunnel,
-                'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
-                'interface': ipsec_obj.interface,
-                'src1': ipsec_obj.src1, 'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
-                'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2,
-                'serial_number': ipsec_obj.serial_number
-            }
-            view_data[ipsec_obj.name] = view_obj
+    # Update View Data
+    for ipsec_obj in sorted_ipsec_objs:
+        view_obj = {
+            'ip': ipsec_obj.ip,
+            'name': ipsec_obj.name,
+            'comments': ipsec_obj.comments,
+            'status': ipsec_obj.status,
+            'incoming_core': ipsec_obj.incoming_core,
+            'outgoing_core': ipsec_obj.outgoing_core,
+            'p2name': ipsec_obj.p2name,
+            'incoming_tunnel': ipsec_obj.incoming_tunnel,
+            'outgoing_tunnel': ipsec_obj.outgoing_tunnel,
+            'interface': ipsec_obj.interface,
+            'src1': ipsec_obj.src1, 'src2': ipsec_obj.src2, 'src3': ipsec_obj.src3, 'src4': ipsec_obj.src4,
+            'dst1': ipsec_obj.dst1, 'dst2': ipsec_obj.dst2,
+            'serial_number': ipsec_obj.serial_number
+        }
+        view_data[ipsec_obj.name] = view_obj
     
-    session.clear()
+    # session.clear()
     # for key,val in session.pools.items():
     #     print(key, val)
     # # Return JSON Data to View

@@ -11,11 +11,11 @@ def get_session():
 
 def get_data(serial_number, session, base_url, headers):
     response = session.get(base_url + serial_number + '/api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid', headers=headers)
-    print(response.status_code, response.json())
+    return response
 
-def get_sites(request):
+def get_sites(request, serial_numbers):
     api_user = APIUser.objects.get(user=request.user)
-    serial_numbers = ['FGT60FTK2109D2Z2', 'FGT60FTK2109D33E']
+    # serial_numbers = ['FGT60FTK2109D2Z2', 'FGT60FTK2109D33E']
     session = get_session()
     headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_user.access_token}', 'Accept-Encoding': 'gzip'}
 
@@ -31,16 +31,8 @@ def get_sites(request):
         # Retrieve results (if needed)
         results = [future.result() for future in futures]
 
-    # Your code continues here after all requests are done
-        print(results)
-    # Example: JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'success'})
-
-
-
-
-
-
+        executor.shutdown()
+    return results
 
 def dynamic_call():
     pass
