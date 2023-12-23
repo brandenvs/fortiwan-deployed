@@ -8,9 +8,21 @@ SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85
 
 DEBUG = True
 
+CONFIG_PATH = os.path.join(BASE_DIR.parent, '.env')
+config._find_file(CONFIG_PATH)
+
+API_KEY = config('API_KEY')
+PASSWORD = config('PASSWORD')
+CLIENT_ID = config('CLIENT_ID')
+
+ALLOWED_HOST = config('ALLOWED_HOST')
+
+allowed_base = ALLOWED_HOST
+allowed_https = f'https://{ALLOWED_HOST}'
+
 ALLOWED_HOSTS = [
-    'https://fortiapi.bcfa.co.za',
-    'fortiapi.bcfa.co.za',
+    allowed_https,
+    allowed_base,
     '51.68.220.41', 
     'localhost', 
     '127.0.0.1'
@@ -112,6 +124,8 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATIC_URL =  'static/'
 
 # STATIC_ROOT = '/home/fortiwan/fortiwanroot/site/Fortiwan-Deployed/static/'
@@ -122,17 +136,3 @@ STATICFILES_DIRS = [
     os.path.join(STATIC_ROOT, 'js/'),
     os.path.join(STATIC_ROOT, 'res/') 
 ]
-
-# Use Whitenoise for serving static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Load environment variables from the .env file
-CONFIG_PATH = os.path.join(BASE_DIR.parent, '.env')
-config._find_file(CONFIG_PATH)
-
-# Load environment variables
-ACCESS_TOKEN = config('ACCESS_TOKEN')
-API_KEY = config('API_KEY')
-PASSWORD = config('PASSWORD')
-CLIENT_ID = config('CLIENT_ID')
-INTERFACE_TOKEN = config('INTERFACE_TOKEN')
