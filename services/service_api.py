@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from .models import APIUser
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from concurrent.futures import ThreadPoolExecutor as tpe
 from concurrent.futures import wait
 from .models import Site
@@ -30,6 +30,8 @@ def build_sites(site_data):
         if data.status_code == 200:
             results = data.json().get('results', [])       
             serial_number = data.json().get('serial', '')
+        else:
+            results = None
 
         if results:
             for result_data in results:                
@@ -154,4 +156,14 @@ def put_interface(request):
     response = session.request('put', f'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/{serial_number}/api/v2/cmdb/vpn.ipsec/phase1-interface/{site_abbr}', json=payload)
     response_json = response.json()
     print(response_json)
-    return HttpResponse(response.text)
+    tunnel_data = {
+        'status': response_json.get('status'),
+        'http_status': str(response_json.get('http_status')).upper(),
+        'revision_changed': response_json.get('revision_changed'),
+        'serial': serial_number,
+        'interface_before': current_interface,
+        'interface_after': change_interface,
+        'tunnel_name': site_name,
+        'tunnel_abbr': site_abbr
+    }
+    return render(request, 'ipsec_interface.html', {'tunnel_data': tunnel_data})

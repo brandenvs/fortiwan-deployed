@@ -8,3 +8,8 @@ def index(request):
     status_token(request)
     sns = read_serial_numbers('static/res/device_serial_numbers.txt')
     return render(request, 'ipsec_dashboard.html', {'sns': sns})
+
+def result_view(request, tunnel_data):
+    status_token(request)
+    return render(request, 'ipsec_interface.html', {'tunnel_data': tunnel_data})
+
