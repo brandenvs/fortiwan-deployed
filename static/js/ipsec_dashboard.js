@@ -1,12 +1,12 @@
-function buildIPsecTemplate(responseData) {
+function buildSite(responseData) {
+    $('#ipsec-container').empty();
+    $('#modal-container').empty();
     // Loop through the list of VPN tunnels
     $.each(responseData, function (index, data) {
         // Clone the template for each VPN tunnel
         var $template = $('#ipsec-template').clone();
 
         var comment = ' ';
-        
-        console.log(index, data)
         
         if (data.comments == '') {
             comment = '--';
@@ -36,7 +36,7 @@ function buildIPsecTemplate(responseData) {
         $template.find('#ipsec-dst1').text(data.dst1);
         $template.find('#ipsec-dst2').text(data.dst2);
 
-        // if (data.interface == 'none') {
+        // if (data.interface == 'non') {
         //     $template.find('#launch-modal').hide();
         // }
 
@@ -64,7 +64,7 @@ function buildIPsecTemplate(responseData) {
         $template.removeAttr('hidden');
 
         $('#ipsec-container').append($template);
-        $('#modal-container').append($model)
+        $('#modal-container').append($model);
     });
 }
 
@@ -79,7 +79,7 @@ function getAvailableSites(backend_url, callback) {
             $('#spinner').hide();       
             
             console.log(responseData.interface);
-            buildIPsecTemplate(responseData);
+            buildSite(responseData);
 
             _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
             _toast.show();

@@ -7,12 +7,15 @@ from concurrent.futures import ThreadPoolExecutor as tpe
 from concurrent.futures import wait
 from .models import Site
 
-def get_session():
+def get_session(request):
     session = requests.Session()
+    api_user = APIUser.objects.get(user=request.user)
+    session.headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_user.access_token}', 'Accept-Encoding': 'gzip'}
     return session
 
 def get_site(serial_number, session, base_url):
-    response = session.get(base_url + serial_number + '/api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid')
+    api_url = f'{base_url}{serial_number}/api/v2/monitor/vpn/ipsec?format=ip|name|comments|status|proxyid'
+    response = session.get(api_url)
     return response
 
 def get_interface(site_name, serial_number, session, base_url):
@@ -20,17 +23,10 @@ def get_interface(site_name, serial_number, session, base_url):
     response = session.get(api_url)
     return response
 
-def process_data(response):
-    pass
-
-def decouple_data(coupled_data):
-    pass
-
-def build_site(site_data):
+def build_sites(site_data):
     site_objs = []
 
-    for data in site_data:
-        
+    for data in site_data:        
         if data.status_code == 200:
             results = data.json().get('results', [])       
             serial_number = data.json().get('serial', '')
@@ -84,7 +80,7 @@ def build_site(site_data):
 
 def get_interfaces(request, site_objs):
     api_user = APIUser.objects.get(user=request.user)
-    session = get_session()
+    session = get_session(request)
     session.headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_user.access_token}', 'Accept-Encoding': 'gzip'}
 
     base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/'
@@ -114,11 +110,10 @@ def get_interfaces(request, site_objs):
     return site_objs            
 
 def get_sites(request, serial_numbers):
-    api_user = APIUser.objects.get(user=request.user)
-    session = get_session()
-    session.headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_user.access_token}', 'Accept-Encoding': 'gzip'}
+    session = get_session(request)
 
     base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/'
+
     with tpe() as executor:
         # Pass additional arguments to the function using functools.partial
         future_sites = [executor.submit(
@@ -132,13 +127,31 @@ def get_sites(request, serial_numbers):
 
         result_sites = [future.result() for future in future_sites]
 
-    site_objs = build_site(result_sites)
+    site_objs = build_sites(result_sites)
 
     objs = get_interfaces(request, site_objs)
-
     return objs
 
+def put_interface(request):
+    if request.method == 'POST':
+        site_name = request.POST.get('tunnel_name')
+        site_abbr = request.POST.get('tunnel_abbr')
+        serial_number = request.POST.get('serial_number')
+        current_interface = request.POST.get('tunnel_interface')
+    
+    change_interface = None
+    if current_interface == 'wan1':
+        change_interface = 'wan2'
+    else:
+        change_interface = 'wan1'
+    
+    payload = {
+        'interface': change_interface
+    }
 
+    session = get_session(request)
 
-def dynamic_call():
-    pass
+    response = session.request('put', f'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/{serial_number}/api/v2/cmdb/vpn.ipsec/phase1-interface/{site_abbr}', json=payload)
+    response_json = response.json()
+    print(response_json)
+    return HttpResponse(response.text)

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
-from services.fortiauthenticator_api_services import status_token, read_serial_numbers
+from services.views import read_serial_numbers
+from services.fortiauthenticator_api_services import status_token
 
 @login_required
 def index(request):
