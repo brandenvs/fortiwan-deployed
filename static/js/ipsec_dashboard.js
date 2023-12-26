@@ -102,8 +102,8 @@ function getAvailableSites(backend_url, callback) {
             // Hide spinner on success and display data
             $('#spinner').hide();       
             
-            console.log(responseData.count());
-            if (responseData.count() == 0) {
+            console.log(responseData.count);
+            if (responseData.count == 0) {
                 _toast = alertMsg('Retrieval Success!', 'No sites with the selected filter.', 'info', 10000);
               } else {
                 buildSite(responseData);
