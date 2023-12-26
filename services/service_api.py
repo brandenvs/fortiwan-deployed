@@ -1,8 +1,6 @@
 import requests
-from django.conf import settings
 from .models import APIUser
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from concurrent.futures import ThreadPoolExecutor as tpe
 from concurrent.futures import wait
 from .models import Site
@@ -34,7 +32,7 @@ def build_sites(site_data):
             results = None
 
         if results:
-            for result_data in results:                
+            for result_data in results:
                 # Site result_data
                 core_in = round(result_data.get('incoming_bytes', 0) / (1024.0 * 1024.0))
                 core_out = round(result_data.get('outgoing_bytes', 0) / (1024.0 * 1024.0))

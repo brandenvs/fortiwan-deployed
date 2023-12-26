@@ -1,55 +1,79 @@
 function buildSite(responseData) {
-    $('#ipsec-container').empty();
-    $('#modal-container').empty();
-    // Loop through the list of VPN tunnels
-    $.each(responseData, function (index, data) {
-        // Clone the template for each VPN tunnel
-        var $template = $('#ipsec-template').clone();
+    $('#site-container').empty();
+    $('#interface-container').empty();
+    $('#site-insight-container').empty();
 
-        var comment = ' ';
+    $.each(responseData, function (index, data) {
+        var $site = $('#site-template').clone();
+        var $siteInsight = $('#site-insight').clone();
+        var $model = $('#interface-modal').clone();
+
+        var comment = data.comments || 'No comment';
+
+        var siteId = 'site-' + data.name;
+        // Site data
+        $site.attr('id',siteId);
+        $site.find('#ipsec-name').text(data.name);
+        $site.find('#ipsec-comment').text(comment);
         
-        if (data.comments == '') {
-            comment = '--';
+        var status = data.status;
+
+        if (status.toLowerCase() == 'up') {
+            $site.find('#ipsec-status').attr('class', 'badge bg-success rounded-pill'); 
+            $site.find('#ipsec-status').text(data.status); 
+        } else if (status.toLowerCase() == 'down') {
+            $site.find('#ipsec-status').attr('class', 'badge bg-danger rounded-pill'); 
+            $site.find('#ipsec-status').text(data.status); 
         } else {
-            comment = data.comments;
+            $site.find('#ipsec-status').attr('class', 'badge bg-secondary rounded-pill'); 
+            $site.find('#ipsec-status').text(data.status); 
+        }
+        
+        $site.find('#ipsec-ip').text(data.ip); 
+        $site.find('#ipsec-interface').text(data.interface);
+        $site.find('#card-footer').text(data.serial_number);
+
+        var siteInsightId = 'site-insight' + data.name;
+        $siteInsight.attr('id', siteInsightId);
+        var siteInsightBtnId = 'collapse-insight-btn' + data.name.toLowerCase();
+        var siteInsightCollapseId = 'collapse-insight-' + data.name.toLowerCase();
+
+        $site.find('#site-insight-button').attr('href','#' + siteInsightCollapseId);
+        $site.find('#site-insight-button').attr('id',siteInsightBtnId);
+        $site.find('#site-insight-button').attr('aria-controls', siteInsightCollapseId);      
+        $site.find('#ipsec-incoming-core').text(data.incoming_core); 
+        $site.find('#ipsec-outgoing-core').text(data.outgoing_core); 
+        $site.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel); 
+        $site.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel); 
+
+        $siteInsight.find('#site-insight-collapse').attr('id', siteInsightCollapseId);
+
+        // Site insight data
+        $siteInsight.find('#ipsec-src1').text(data.src1);
+        $siteInsight.find('#ipsec-src2').text(data.src2);
+        $siteInsight.find('#ipsec-src3').text(data.src3);
+        $siteInsight.find('#ipsec-src4').text(data.src4);
+
+        $siteInsight.find('#ipsec-dst1').text(data.dst1);
+        $siteInsight.find('#ipsec-dst2').text(data.dst2);
+  
+        $site.find('#site-insight-container').append($siteInsight);       
+
+
+        if (data.interface == 'non') {
+            $site.find('#launch-modal').hide();
         }
 
-        // IPsec Tunnel Data
-        $template.find('#ipsec-name').text(data.name);// IPsec/VPN Tunnel Name
-        $template.find('#ipsec-comment').text(comment); // IPsec/VPN Short Hand
-        $template.find('#ipsec-status').text(data.status); // IPsec/VPN Tunnel Status
-        $template.find('#ipsec-ip').text(data.ip); // IPsec/VPN Core IP
-        $template.find('#ipsec-interface').text(data.interface); // IPsec/VPN Tunnel's Interface
-        $template.find('#ipsec-incoming-core').text(data.incoming_core); // IPsec/VPN Core Incoming Traffic
-        $template.find('#ipsec-outgoing-core').text(data.outgoing_core); // IPsec/VPN Core Name Outgoing Traffic
-        $template.find('#ipsec-incoming-tunnel').text(data.incoming_tunnel); // IPsec/VPN Tunnel Incoming Traffic
-        $template.find('#ipsec-outgoing-tunnel').text(data.outgoing_tunnel); // IPsec/VPN Tunnel Outgoing Traffic
-        $template.find('#card-footer').text(data.username); // IPsec/VPN Tunnel Parent
-
-        // IPsec Proxy Data - src
-        $template.find('#ipsec-src1').text(data.src1);
-        $template.find('#ipsec-src2').text(data.src2);
-        $template.find('#ipsec-src3').text(data.src3);
-        $template.find('#ipsec-src4').text(data.src4);
-
-        // IPsec Proxy Data - dst
-        $template.find('#ipsec-dst1').text(data.dst1);
-        $template.find('#ipsec-dst2').text(data.dst2);
-
-        // if (data.interface == 'non') {
-        //     $template.find('#launch-modal').hide();
-        // }
-
-        // Site's IPsec tunnel interface
+        // Site's Interface Switch Fields
         var to = 'wan1';
         if (data.interface == 'wan1') {
             to = 'wan2'
         }
 
         var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
-        $template.find('#launch-modal').attr('href', '#' + interface_modal_id);
+        $site.find('#launch-modal').attr('href', '#' + interface_modal_id);
 
-        var $model = $('#interface-modal').clone();
+        
 
         var interface_modal_id = 'interface-modal-' + data.name.toLowerCase();
         $model.attr('id', interface_modal_id);
@@ -61,9 +85,9 @@ function buildSite(responseData) {
         $model.find('#input-serial-number').attr('value', data.serial_number);
         $model.find('#input-interface').attr('value', data.interface)
 
-        $template.removeAttr('hidden');
+        $site.removeAttr('hidden');
 
-        $('#ipsec-container').append($template);
+        $('#site-container').append($site);
         $('#modal-container').append($model);
     });
 }

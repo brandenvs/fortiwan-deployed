@@ -1,10 +1,6 @@
 import requests, time, certifi, urllib3
 from django.conf import settings
 from .models import APIUser
-from . import models as vmc
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
-from . import service_api
 
 def get_session():
     session = urllib3.PoolManager(
@@ -351,68 +347,3 @@ def status_token(request):
     else:
         print('[ERROR] Unable to Call API', resp.status)
         return None
-
-def post_interface_switch(request):
-    if request.method == 'POST':
-        tunnel_name = request.POST.get('tunnel_name')
-        tunnel_abbr = request.POST.get('tunnel_abbr')
-        serial_number = request.POST.get('serial_number')
-        tunnel_interface = request.POST.get('tunnel_interface')
-
-        fos_area = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{tunnel_abbr}'
-
-        print(f'serial_number: {serial_number}\nname: {tunnel_name}\ninterface: {tunnel_interface}')
-
-        if tunnel_interface == 'wan1':
-            new_tunnel_interface = 'wan2'
-        elif tunnel_interface == 'wan2':
-            new_tunnel_interface = 'wan1'
-        else:
-            new_tunnel_interface = 'No Interface'
-
-        # Define JSON Payload
-        payload = {
-            'interface': new_tunnel_interface
-        }
-
-        response = api_call(request, serial_number, fos_area, payload)
-        response_json = response.json()
-        print(response_json)
-
-        tunnel_data = {
-            'mkey': response_json['mkey'],
-            'status': response_json['status'],
-            'http_status': str(response_json['http_status']).upper(),
-            'revision_changed': response_json['revision_changed'],
-            'serial': response_json['serial'],
-            'interface_before': tunnel_interface,
-            'interface_after': new_tunnel_interface,
-            'tunnel_name': tunnel_name,
-            'tunnel_abbr': tunnel_abbr
-        }
-        return render(request, 'tunnel_overview.html', {'tunnel_data': tunnel_data})
-
-def revert_interface(request):
-    if request.method == 'POST':
-        interface_before = request.POST.get('interface_before')
-        tunnel_serial = request.POST.get('tunnel_serial')
-        tunnel_abbr = request.POST.get('tunnel_abbr')
-
-        fos_area = f'api/v2/cmdb/vpn.ipsec/phase1-interface/{tunnel_abbr}'
-
-        if interface_before == 'wan1':
-            new_tunnel_interface = 'wan2'
-        elif interface_before == 'wan2':
-            new_tunnel_interface = 'wan1'
-        else:
-            new_tunnel_interface = 'No Interface'
-
-        # Define JSON Payload
-        payload = {
-            'interface': new_tunnel_interface
-        }
-
-        response = api_call(request, tunnel_serial, fos_area, payload)
-        print(response.data.decode())
-        return HttpResponse(response.data.decode())
-

@@ -23,47 +23,66 @@
         <p class="fs-2 fw-medium">IPsec Dashboard</p>
 
         <!-- IPsec Search  -->
-        <label for="search-tunnel" class="form-label">Load Specific Site</label>        
+        <label for="search-tunnel" class="form-label">Load Specific Site</label>
         <div class="input-group mb-3">
             <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Type to search...">
+            {% csrf_token %}  
             <datalist id="serial-numbers">
-                {% for sn in sns %}
-                <option value="{{ sn }}">
-                    {% endfor %}
+                {% for sn, site_name in view_data.items %}
+                    <option value="{{ site_name }} - {{ sn }}">
+                {% endfor %}
             </datalist>
         </div>
 
-        <!-- IPsec Button Toolbar -->
-        <div class="btn-toolbar mt-1" role="toolbar" aria-label="IPsec Toolbar">
-            <div class="btn-group me-2 mt-1" role="group" aria-label="Sites">
-                <a href="#sites-working" id="sites-working" class="btn btn-primary">Working Sites</a>
-                <a href="#sites-suspended" id="sites-suspened" class="btn btn-secondary">Suspended Sites</a>
-            </div>
-            <div class="btn-group mt-1" role="group" aria-label="Tunnels">
-                <a href="#tunnels-connected" id="tunnels-connected" class="btn btn-success">Connected Tunnels</a>
-                <a href="#tunnels-disconnected" id="tunnels-disconnected" class="btn btn-danger">Disconnected Tunnels</a>
+        <!-- Sites Button Group -->
+        <div class="btn-group me-2 mt-1 d-none d-sm-inline mb-2" role="group" aria-label="Sites">
+            <a href="#sites-working" id="sites-working" class="btn btn-primary common-button">Available Sites</a>
+            <a href="#sites-suspended" id="sites-suspended" class="btn btn-secondary common-button">Suspended Sites</a>
+        </div>
+
+        <!-- Tunnels Button Group -->
+        <div class="btn-group mt-1 d-none d-sm-inline" role="group" aria-label="Tunnels">
+            <a href="#tunnels-connected" id="tunnels-connected" class="btn btn-success common-button">Connected
+                Tunnels</a>
+            <a href="#tunnels-disconnected" id="tunnels-disconnected" class="btn btn-danger common-button">Disconnected
+                Tunnels</a>
+        </div>
+
+        <!-- Responsive Dropdown Menu for Small Screens -->
+        <div class="btn-group mt-1 d-sm-none">
+            <button class="btn btn-secondary dropdown-toggle mb-2" type="button" id="responsiveMenu"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Site Menu
+            </button>
+            <div class="dropdown-menu" aria-labelledby="responsiveMenu">
+                <a class="dropdown-item common-button" href="#sites-working">Available Sites</a>
+                <a class="dropdown-item common-button" href="#sites-suspended">Suspended Sites</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item common-button" href="#tunnels-connected">Connected Tunnels</a>
+                <a class="dropdown-item common-button" href="#tunnels-disconnected">Disconnected Tunnels</a>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- IPsec Dashboard Bottom -->
-    <div class="col-12">
-        <p id="instructions"><em>Please use the buttons to fetch and display results</em></p>
+<!-- IPsec Dashboard Bottom -->
+<div class="col-12">
+    <p id="instructions"><em>Please use the buttons to fetch and display results</em></p>
 
-        <!-- Loading Spinner -->
-        <div id="spinner" class="spinner-border text-primary" role="status">
-            <span class="sr-only"></span>
-        </div>
-    
-        <!-- IPsec Container-->
-        <div class="row g-2" id="ipsec-container"></div>
+    <!-- Loading Spinner -->
+    <div id="spinner" class="spinner-border text-primary" role="status">
+        <span class="sr-only"></span>
     </div>
+
+    <!-- IPsec Container-->
+    <div class="row g-2 mt-2" id="site-container"></div>
+</div>
 </div>
 
 <!-- JQuery Templates -->
 
 <!-- IPsec Card Template -->
-<div class="col-md-6 col-12" id="ipsec-template" hidden>
+<div class="col-md-6 col-12" id="site-template" hidden>
     <div class="card w-100">
         <div class="card-body mb-2">
             <div class="container">
@@ -79,9 +98,13 @@
                             </div>
                             <div class="col-md-6 col-12">
                                 <div class="text-end">
-                                    <a href="#interface-modal" data-bs-toggle="modal"  id="launch-modal" title="Reconfigure Tunnel">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-gear-wide spin-on-hover" viewBox="0 0 16 16">
-                                            <path d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434zM8 12.997a4.998 4.998 0 1 1 0-9.995 4.998 4.998 0 0 1 0 9.996z" />
+                                    <a href="#interface-modal" data-bs-toggle="modal" id="launch-modal"
+                                        title="Reconfigure Tunnel">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"
+                                            fill="currentColor" class="bi bi-gear-wide spin-on-hover"
+                                            viewBox="0 0 16 16">
+                                            <path
+                                                d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434zM8 12.997a4.998 4.998 0 1 1 0-9.995 4.998 4.998 0 0 1 0 9.996z" />
                                         </svg>
                                     </a>
                                 </div>
@@ -89,35 +112,30 @@
                             <hr>
                             <div class="col-md-6 col-12">
                                 <div class="text-start">
-                                    <h6 class="fw-semibold mb-1">STATUS: <span class="badge bg-success rounded-pill" id="ipsec-status"></span></h6>
+                                    <h6 class="fw-semibold mb-1">STATUS: <span class="badge bg-success rounded-pill"
+                                            id="ipsec-status"></span></h6>
                                     <p class="fw-light ms-1 fw-lighter" id="ipsec-ip"></p>
                                 </div>
                             </div>
                             <div class="col-md-6 col-12">
                                 <div class="text-end">
-                                    <h6 class="fw-semibold mb-1">INTERFACE: <span class="badge bg-primary rounded-pill" id="ipsec-interface"></span></h6>       
+                                    <h6 class="fw-semibold mb-1">INTERFACE: <span class="badge bg-primary rounded-pill"
+                                            id="ipsec-interface"></span></h6>
                                 </div>
                             </div>
                         </div>
-                    </div>                                
+                    </div>
                     <!-- IPsec Middle -->
                     <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-6 col-12">
-                                <h4 class="fw-semibold text-primary-emphasis mb-1">Local Subnets</h4>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-src1"></p>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-src2"></p>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-src3"></p>
-                                <p class="fs-6 ms-1" id="ipsec-src4"></p>
-                            </div>
-                            <div class="col-md-6 col-12">
-                                <h4 class="fw-semibold text-primary-emphasis mb-1">Data Center Subnets</h4>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-dst1"></p>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-dst2"></p>
-                                <p class="fs-6 ms-1 mb-0" id="ipsec-dst3"></p>
-                                <p class="fs-6 ms-1" id="ipsec-dst4"></p>
-                            </div>
-                        </div>
+                        <a class="btn btn-outline-info" id="site-insight-button" data-bs-toggle="collapse" href="#0"
+                            role="button" aria-expanded="false" aria-controls="collapse-site-insight">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                class="bi bi-menu-app-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M0 1.5A1.5 1.5 0 0 1 1.5 0h2A1.5 1.5 0 0 1 5 1.5v2A1.5 1.5 0 0 1 3.5 5h-2A1.5 1.5 0 0 1 0 3.5zM0 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 3v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2zm14-1V8a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2zM2 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5" />
+                            </svg> Subnets
+                        </a>
+                        <div class="m-2" id="site-insight-container"></div>
                     </div>
                     <!-- IPsec Bottom -->
                     <div class="col-12">
@@ -126,33 +144,45 @@
                                 <h4 class="fw-semibold text-primary-emphasis mb-1">Core Traffic</h4>
                                 <!-- Incoming Traffic(core) -->
                                 <p class="fs-6 mb-0 ms-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
-                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-upload" viewBox="0 0 16 16">
+                                        <path
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                        <path
+                                            d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
                                     </svg> <span id="ipsec-incoming-core"></span> MB/s
                                 </p>
                                 <!-- Outgoing Traffic(core) -->
                                 <p class="fs-6 mb-0 ms-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-download" viewBox="0 0 16 16">
+                                        <path
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                        <path
+                                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
                                     </svg> <span id="ipsec-outgoing-core"></span> MB/s
                                 </p>
                             </div>
                             <div class="col-md-6 col-12">
                                 <h4 class="fw-semibold text-primary-emphasis mb-1">Tunnel Traffic</h4>
-                                <!-- Incoming Traffic(tunnel) -->                                 
+                                <!-- Incoming Traffic(tunnel) -->
                                 <p class="fs-6 mb-0 ms-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
-                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-upload" viewBox="0 0 16 16">
+                                        <path
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                        <path
+                                            d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
                                     </svg> <span id="ipsec-incoming-tunnel"></span> MB/s
                                 </p>
                                 <!-- Outgoing Traffic(tunnel) -->
                                 <p class="fs-6 mb-0 ms-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-download" viewBox="0 0 16 16">
+                                        <path
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                        <path
+                                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
                                     </svg> <span id="ipsec-outgoing-tunnel"></span> MB/s
                                 </p>
                             </div>
@@ -162,11 +192,11 @@
             </div>
         </div>
         <div class="card-footer fw-bolder" id="card-footer"></div>
-    </div>                
+    </div>
 </div>
 
 <!-- IPsec Interface Modal Container -->
-<div id="modal-container"></div>
+<div id="interface-container"></div>
 
 <!-- Interface Modal Template -->
 <div id="modal-template">
@@ -177,7 +207,8 @@
                 <!-- Interface Model Header -->
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modal-title"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-x"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="close-x"></button>
                 </div>
                 <div class="modal-body">
                     <p class="fs-6 fw-bolder text-warning" id="interface-desc"></p>
@@ -188,23 +219,28 @@
                         <div class="row g-2">
                             <div class="col-md-6 col-12">
                                 <label class="form-label">IPsec Tunnel Name</label>
-                                <input type="text" class="form-control disab" name="tunnel_name" placeholder="non" value="" id="input-name" readonly>
+                                <input type="text" class="form-control disab" name="tunnel_name" placeholder="non"
+                                    value="" id="input-name" readonly>
                             </div>
                             <div class="col-md-6 col-12">
                                 <label class="form-label">IPsec Tunnel Abbreviation</label>
-                                <input type="text" class="form-control" name="tunnel_abbr" placeholder="non" value="" id="input-abbr" readonly>
+                                <input type="text" class="form-control" name="tunnel_abbr" placeholder="non" value=""
+                                    id="input-abbr" readonly>
                             </div>
                             <div class="col-md-6 col-12">
                                 <label class="form-label">Associated Serial Number</label>
-                                <input type="text" class="form-control" name="serial_number" placeholder="non" value="" id="input-serial-number" readonly>
+                                <input type="text" class="form-control" name="serial_number" placeholder="non" value=""
+                                    id="input-serial-number" readonly>
                             </div>
                             <div class="col-md-6 col-12">
                                 <label class="form-label">Current Interface</label>
-                                <input type="text" class="form-control" name="tunnel_interface" placeholder="non" value="" id="input-interface" readonly>
+                                <input type="text" class="form-control" name="tunnel_interface" placeholder="non"
+                                    value="" id="input-interface" readonly>
                             </div>
                             <div class="col-12 text-start">
                                 <input type="submit" class="btn btn-success" value="Confirm">
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modal-cancel">Cancel</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                    id="modal-cancel">Cancel</button>
                             </div>
                         </div>
                     </form>
@@ -213,9 +249,31 @@
         </div>
     </div>
 </div>
+
+<!-- Site Insight Collapse Template -->
+<div id="site-insight">
+    <div class="collapse" id="site-insight-collapse">
+        <div class="card card-body">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <h4 class="fw-semibold text-primary-emphasis mb-1">Local Subnets</h4>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-src1"></p>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-src2"></p>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-src3"></p>
+                    <p class="fs-6 ms-1" id="ipsec-src4"></p>
+                </div>
+                <div class="col-md-6 col-12">
+                    <h4 class="fw-semibold text-primary-emphasis mb-1">Data Center Subnets</h4>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-dst1"></p>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-dst2"></p>
+                    <p class="fs-6 ms-1 mb-0" id="ipsec-dst3"></p>
+                    <p class="fs-6 ms-1" id="ipsec-dst4"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
-
 
 <!-- Django Template JavaScript -->
 {% block javascript %}
@@ -224,19 +282,47 @@
         $('#spinner').hide();
         $('#instructions').show();
 
+        $('#input-search-tunnel').on('change', function () {
+            // Get the selected value from the input
+            var sn_site = $(this).val();            
+            _toast = alertMsg("Retrieving site...", "Serial Number: " + sn_site, 'info', 60000);
+            _toast.show();
+
+            $.ajax({
+                url: '{% url "services:hciijyfr" %}',
+                type: 'POST',
+                data: { 'sn_site': sn_site },
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }, 
+                success: function (responseData) {
+                    $('#spinner').hide();
+                    $('#input-search-tunnel').val('');
+                    _toast = alertMsg('Retrieval Success!', 'Displaying site...', 'success', 10000);
+                    _toast.show();
+
+                    buildSite(responseData);
+                },
+                error: function () {
+                    // Handle errors
+                    _toast = alertMsg('Whoops this is embarrassing.', 'Internal Error, please contact brandenconnected@gmail.com if this persists!', 'error', 1000)
+                    _toast.show();
+                }
+            });
+        });
         // Handle Working Sites
-        $('#sites-working').click(function () {
+        $('.common-button').click(function () {
             $('#spinner').show();
             $('#instructions').hide();
-
-            _toast = alertMsg('Retrieving available sites...', 'Please wait, this can take up to 1 minute!', 'info', 60000);
+            $('#input-search-tunnel').val('');
+            var buttonId = $(this).attr('id');
+            console.log('Button clicked: ' + buttonId);
+            _toast = alertMsg("This won't take long ;)", "Retrieving Available Sites...", 'info', 60000);
             _toast.show();
 
             // Use the getAvailableSites function with a callback
             getAvailableSites('{% url "services:riybtowl" %}')
-            
-            });
+
         });
+    });
 
 </script>
 {% endblock javascript %}
