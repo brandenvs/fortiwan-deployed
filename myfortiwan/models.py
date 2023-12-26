@@ -1,6 +1,6 @@
 from django.db import models
 
-class APIUser():
+class APIUser:
     def __init__(self, username, access_token, expires_in, token_type, scope, refresh_token, message, status):
         self.username = username
         self.access_token = access_token

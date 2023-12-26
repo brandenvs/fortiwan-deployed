@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # API User Model
 class APIUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     issued_time = models.FloatField()
     access_token = models.CharField(max_length=255)
     expires_in = models.CharField(max_length=255)
