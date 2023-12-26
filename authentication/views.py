@@ -35,7 +35,7 @@ def authenticate_user(request):
 def is_staff_user(user):
     return user.is_authenticated and user.is_staff
 
-@login_required
+@login_required(login_url='authentication:login')
 @user_passes_test(is_staff_user)
 def create_new_user(request):
     if request.method == 'POST':
@@ -59,7 +59,7 @@ def create_new_user(request):
             # Save User to Database
             new_user.save()
             # Redirect User to Profile
-            return HttpResponseRedirect(reverse('authentication:show_user'))   
+            return redirect('authentication:show_user')   
         
         # Catch the exception
         except Exception as ex:
@@ -69,7 +69,7 @@ def create_new_user(request):
     # Render Initial Create User View
     return render(request, 'create_user.html')
 
-@login_required
+@login_required(login_url='authentication:login')
 def create_user(request):
     # Render View
     return render(request, 'create_user.html')
