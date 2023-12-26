@@ -82,17 +82,3 @@ def show_user(request):
 def logout_user(request):
     logout(request)
     return redirect('authentication:login')
-
-def remove_user(request):
-
-
-    user_id_to_delete = 1  # Replace with the actual user ID you want to delete
-    api_users_to_update = APIUser.objects.filter(user_id=user_id_to_delete)
-    
-
-    for api_user in api_users_to_update:
-        
-        api_user.delete()
-
-    # Now you can safely delete the user
-    User.objects.filter(id=user_id_to_delete).delete()
