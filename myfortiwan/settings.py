@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 SECRET_KEY = 'django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85'
 
-DEBUG = False
+DEBUG = True
 
 CONFIG_PATH = os.path.join(BASE_DIR.parent, '.env')
 config._find_file(CONFIG_PATH)
