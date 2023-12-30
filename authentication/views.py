@@ -16,8 +16,12 @@ def user_login(request):
         return render(request, 'login.html')
 
 def authenticate_user(request):
-    username = request.POST['username']
-    password = request.POST['password']    
+    _username = request.POST['username']
+    password = request.POST['password']
+
+    username = str(_username).lower()
+    print('USERNAME:', username)
+
     # Authorize user
     user = authenticate(username=username, password=password)
     # User is NOT Authenticated
