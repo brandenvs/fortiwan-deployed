@@ -1,11 +1,14 @@
 # Security Policy
-Prototype Version 1.0 - Do not expect the application to operate as expected.
 
-Prototype Version 2.0 will be more secure and stable. 
+Generic Security Policy
+> v1.0
 
-A more comprehensive secuity policy will be added in *Final Prototype*.
+Immediate effect and application of best practices. More specifically this policy will ensure the application adheres to Cyber Security Best Practices and conventions.
+
+In the case of a data breach, vulnerability exploitation or injection,  **bcodelabs.com will not assume any risk. Rather any security risks posed to/by the user will be allocated to the user.**
 
 ## Reporting a Vulnerability
-If you discover a vulnerability or bad practises please urgantly report it by, [Sending Me an Email](mailto:branden-van-staden@outlook.com). Thank you!
-> Developed by: Branden v Staden
 
+If you discover a vulnerability or failure to comply with security standards or programmatic practices(PEP8). Please report a violation to the following email address: [Sending Me an Email](mailto:branden-van-staden@outlook.com). Thank you!
+
+> *All rights reserved, 2024, bcodelabs.com*

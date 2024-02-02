@@ -5,5 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls), 
     path('', include('authentication.urls')),
     path('fortiwan-dashboard/', include('ipsec_dashboard.urls')),
-    path('services/', include('services.urls')),    
+    path('services/', include('services.urls')),
 ]
