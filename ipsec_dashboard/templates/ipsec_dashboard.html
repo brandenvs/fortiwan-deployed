@@ -14,18 +14,33 @@
     .spin-on-hover:hover {
         transform: rotate(360deg);
     }
+
+        .watermark {
+            position: fixed;
+            /* Fixes the footer to the bottom */
+            bottom: 1rem;
+            left: 0;
+            width: 100%;
+            font-size: 3rem; /* Adjust size as needed */
+            color: rgba(124, 124, 124, 0.226); /* Light grey for a subtle effect */
+            z-index: -1; /* Place it behind other content */
+            user-select: none; /* Prevent text selection */
+            pointer-events: none; /* Allows click events to pass through */
+        }
+
 </style>
 
 <!-- IPsec Dashboard Content -->
 <div class="row g-2">
+    <!-- Watermark -->
+    <p class="watermark">Fortiwan Dashboards</p>
+
     <!-- IPsec Dashboard Top -->
     <div class="col-12">
-        <p class="fs-2 fw-medium">IPsec Dashboard</p>
-
         <!-- IPsec Search  -->
-        <label for="search-tunnel" class="form-label">Load Specific Site</label>
+        <label for="search-tunnel" class="form-label">Direct Support</label>
         <div class="input-group mb-3">
-            <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Type to search...">
+            <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Find Site...">
             {% csrf_token %}
             <datalist id="serial-numbers">
                 {% for sn, site_name in view_data.items %}
@@ -36,18 +51,9 @@
 
         <!-- Sites Button Group -->
         <div class="btn-group me-2 mt-1 d-none d-sm-inline mb-2" role="group" aria-label="Sites">
-            <a href="#sites-working" id="sites-working" class="btn btn-primary common-button">Available Sites</a>
-            <a href="#sites-suspended" id="sites-suspended" class="btn btn-secondary common-button">Unavailable
+            <a href="#loading..." id="sites-working" class="btn btn-primary common-button" title="Fetch all site with a healthy response indicating the site is operational.">Available Sites</a>
+            <a href="#loading..." id="sites-suspended" class="btn btn-secondary common-button" title="Fetch all sites with a bad response indicating the site has malfunctioned.">Unavailable
                 Sites</a>
-        </div>
-
-        <!-- Tunnels Button Group -->
-        <div class="btn-group mt-1 d-none d-sm-inline" role="group" aria-label="Tunnels">
-            <a href="#tunnels-connected" id="tunnels-connected" class="btn btn-success common-button disabled">Connected
-                Tunnels</a>
-            <a href="#tunnels-disconnected" id="tunnels-disconnected"
-                class="btn btn-danger common-button disabled">Disconnected
-                Tunnels</a>
         </div>
 
         <!-- Responsive Dropdown Menu for Small Screens -->
@@ -59,9 +65,6 @@
             <div class="dropdown-menu" aria-labelledby="responsiveMenu">
                 <a class="dropdown-item common-button" href="#sites-working">Available Sites</a>
                 <a class="dropdown-item common-button" href="#sites-suspended">Unavailable Sites</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item common-button" href="#tunnels-connected disabled">Connected Tunnels</a>
-                <a class="dropdown-item common-button" href="#tunnels-disconnected disabled">Disconnected Tunnels</a>
             </div>
         </div>
     </div>
