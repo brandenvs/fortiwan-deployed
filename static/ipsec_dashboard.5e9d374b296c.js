@@ -117,7 +117,7 @@ function buildUnavailableSite(responseData){
     $.each(responseData, function (index, data) {
         var $site = $("#unavailable-template").clone();
 
-        console.log(data);
+        console.log(data.serial_number);
         $site.find("#unavailable-title").text(data.serial_tag + " is Currently Unavailable");
         $site.find('#unavailable-serial').text(data.serial_number);
         $site.find('#unavailable-tag').text(data.serial_tag);
@@ -138,7 +138,7 @@ function getUnavailableSites(backend_url, callback) {
             // Hide spinner on success and display data
             $("#spinner").hide();
 
-            console.log(responseData);
+            console.log(responseData.count);
             if (responseData.count == 0) {
                 _toast = alertMsg(
                     "Retrieval Success!",

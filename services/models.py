@@ -13,6 +13,21 @@ class APIUser(models.Model):
     message = models.CharField(max_length=255)
     status = models.CharField(max_length=255)
 
+# Unavailable Site Model
+class UnavailableSite:
+    def __init__(self, serial_number, serial_tag, site_status, description):
+        self.serial_number = serial_number
+        self.serial_tag = serial_tag
+        self.site_status = site_status
+        self.description = description
+        
+    def __str__(self):
+        output = f'''Site is currently Unavailable!
+        Site Details:
+        ({self.site_status}) | {self.serial_tag} | {self.serial_number}'''
+        return output
+    
+
 # Site View Model
 class Site:
     def __init__(self, ip, name, comments, status, incoming_core, outgoing_core, incoming_tunnel, outgoing_tunnel, p2name, interface, src1, src2, src3, src4, dst1, dst2, serial_number):

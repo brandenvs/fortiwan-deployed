@@ -86,6 +86,19 @@
 
 <!-- JQuery Templates -->
 
+<div class="col-md-6 col-12" id="unavailable-template" hidden>
+    <div class="border rounded">
+        <div class="text-start m-2">
+            <p class="fs-4 fw-medium text-warning" id="unavailable-title"></p>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item fw-light">Serial Number: <span class="fw-bolder" id="unavailable-serial"></span></li>
+            <li class="list-group-item fw-light">Site Tag: <span class="fw-bolder" id="unavailable-tag"></span></li>
+            <li class="list-group-item fw-light">Status Code: <span class="fw-bolder" id="unavailable-status"></span></li>
+          </ul>
+    </div>
+</div>
+
 <!-- IPsec Card Template -->
 <div class="col-md-6 col-12" id="site-template" hidden>
     <div class="card w-100">
@@ -321,19 +334,24 @@
             $('#input-search-tunnel').val('');
             var buttonId = $(this).attr('id');
             var buttonMobileId = $(this).attr('href');
-            console.log('Button clicked: ' + buttonId);
-            _toast = alertMsg("This won't take long ;)", "Retrieving Available Sites...", 'info', 60000);
-            _toast.show();
 
             if (buttonId == 'sites-suspended') {
-                getAvailableSites('{% url "services:suspended" %}');
+                _toast = alertMsg("Please wait...", "Retrieving Unavailable Sites", 'info', 60000);
+                _toast.show();
+                getUnavailableSites('{% url "services:suspended" %}');
             } else if (buttonId == 'sites-working') {
+                _toast = alertMsg("Please wait...", "Retrieving Available Sites", 'info', 60000);
+                _toast.show();
                 getAvailableSites('{% url "services:riybtowl" %}');
 
             } else {
                 if (buttonMobileId == '#sites-suspended') {
-                    getAvailableSites('{% url "services:suspended" %}');
+                    getUnavailableSites('{% url "services:suspended" %}');
+                    _toast = alertMsg("Please wait...", "Retrieving Unavailable Sites", 'info', 60000);
+                    _toast.show();
                 } else if (buttonMobileId == '#sites-working') {
+                    _toast = alertMsg("Please wait...", "Retrieving Available Sites", 'info', 60000);
+                    _toast.show();
                     getAvailableSites('{% url "services:riybtowl" %}');
                 }
             }

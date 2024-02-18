@@ -138,7 +138,7 @@ function getUnavailableSites(backend_url, callback) {
             // Hide spinner on success and display data
             $("#spinner").hide();
 
-            console.log(responseData);
+            console.log(responseData.count);
             if (responseData.count == 0) {
                 _toast = alertMsg(
                     "Retrieval Success!",
