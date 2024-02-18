@@ -22,13 +22,14 @@
         {% endif %}
     </div>
     <div class="card-footer">
-        <form action="{% url 'fortiwan_services:revert_interface' %}" method="post">
+        <form action="{% url 'services:kstzzjyf' %}" method="post">
             {% csrf_token %}
-            <input type="text" name="interface_before" value="{{ tunnel_data.interface_before }}" hidden>
-            <input type="text" name="tunnel_serial" value="{{ tunnel_data.serial }}" hidden>
+            <input type="text" name="tunnel_interface" value="{{ tunnel_data.interface_after }}" hidden>
+            <input type="text" name="serial_number" value="{{ tunnel_data.serial }}" hidden>
             <input type="text" name="tunnel_abbr" value="{{ tunnel_data.tunnel_abbr }}" hidden>
+            <input type="text" name="tunnel_name" value="{{ tunnel_data.tunnel_name }}" hidden>
             <input type="submit" class="btn btn-danger" title="Revert Interface back to {{ tunnel_data.interface_before|default:'non' }}?" value="Revert Changes?">
-            <a class="btn btn-success" href="{% url 'fortiwan_dashboard:home' %}">Continue...</a>
+            <a class="btn btn-success" href="{% url 'ipsec_dashboard:home' %}">Continue...</a>
         </form>
     </div>
 </div>

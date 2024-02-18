@@ -1,3 +1,4 @@
-# FortiWAN - Aims to Integrate FortiOS REST API into BCFA Infrastructure
-Web Application serves as a modern GUI for interacting with infrastructure.
+# Fortinet: FortiOS REST API Intergration
+*A solution designed to integrate FortiOS REST API endpoints with Enterprise Infrastrucuture.*
 
+The repo is abit messy I will merge main soon ⏰ and do some house clenaing ...
