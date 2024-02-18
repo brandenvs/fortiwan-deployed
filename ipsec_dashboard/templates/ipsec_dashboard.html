@@ -26,25 +26,27 @@
         <label for="search-tunnel" class="form-label">Load Specific Site</label>
         <div class="input-group mb-3">
             <input class="form-control" list="serial-numbers" id="input-search-tunnel" placeholder="Type to search...">
-            {% csrf_token %}  
+            {% csrf_token %}
             <datalist id="serial-numbers">
                 {% for sn, site_name in view_data.items %}
-                    <option value="{{ site_name }} - {{ sn }}">
-                {% endfor %}
+                <option value="{{ site_name }} - {{ sn }}">
+                    {% endfor %}
             </datalist>
         </div>
 
         <!-- Sites Button Group -->
         <div class="btn-group me-2 mt-1 d-none d-sm-inline mb-2" role="group" aria-label="Sites">
             <a href="#sites-working" id="sites-working" class="btn btn-primary common-button">Available Sites</a>
-            <a href="#sites-suspended" id="sites-suspended" class="btn btn-secondary common-button">Suspended Sites</a>
+            <a href="#sites-suspended" id="sites-suspended" class="btn btn-secondary common-button">Unavailable
+                Sites</a>
         </div>
 
         <!-- Tunnels Button Group -->
         <div class="btn-group mt-1 d-none d-sm-inline" role="group" aria-label="Tunnels">
-            <a href="#tunnels-connected" id="tunnels-connected" class="btn btn-success common-button">Connected
+            <a href="#tunnels-connected" id="tunnels-connected" class="btn btn-success common-button disabled">Connected
                 Tunnels</a>
-            <a href="#tunnels-disconnected" id="tunnels-disconnected" class="btn btn-danger common-button">Disconnected
+            <a href="#tunnels-disconnected" id="tunnels-disconnected"
+                class="btn btn-danger common-button disabled">Disconnected
                 Tunnels</a>
         </div>
 
@@ -56,10 +58,10 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="responsiveMenu">
                 <a class="dropdown-item common-button" href="#sites-working">Available Sites</a>
-                <a class="dropdown-item common-button" href="#sites-suspended">Suspended Sites</a>
+                <a class="dropdown-item common-button" href="#sites-suspended">Unavailable Sites</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item common-button" href="#tunnels-connected">Connected Tunnels</a>
-                <a class="dropdown-item common-button" href="#tunnels-disconnected">Disconnected Tunnels</a>
+                <a class="dropdown-item common-button" href="#tunnels-connected disabled">Connected Tunnels</a>
+                <a class="dropdown-item common-button" href="#tunnels-disconnected disabled">Disconnected Tunnels</a>
             </div>
         </div>
     </div>
@@ -250,6 +252,8 @@
     </div>
 </div>
 
+<div id="modal-container"></div>
+
 <!-- Site Insight Collapse Template -->
 <div id="site-insight">
     <div class="collapse" id="site-insight-collapse">
@@ -284,15 +288,15 @@
 
         $('#input-search-tunnel').on('change', function () {
             // Get the selected value from the input
-            var sn_site = $(this).val();            
+            var sn_site = $(this).val();
             _toast = alertMsg("Retrieving site...", "Serial Number: " + sn_site, 'info', 60000);
             _toast.show();
-
+            $('#spinner').show();
             $.ajax({
                 url: '{% url "services:hciijyfr" %}',
                 type: 'POST',
                 data: { 'sn_site': sn_site },
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' }, 
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
                 success: function (responseData) {
                     $('#spinner').hide();
                     $('#input-search-tunnel').val('');
@@ -311,16 +315,25 @@
         // Handle Working Sites
         $('.common-button').click(function () {
             $('#spinner').show();
-            $('#instructions').hide();
             $('#input-search-tunnel').val('');
             var buttonId = $(this).attr('id');
+            var buttonMobileId = $(this).attr('href');
             console.log('Button clicked: ' + buttonId);
             _toast = alertMsg("This won't take long ;)", "Retrieving Available Sites...", 'info', 60000);
             _toast.show();
 
-            // Use the getAvailableSites function with a callback
-            getAvailableSites('{% url "services:riybtowl" %}')
+            if (buttonId == 'sites-suspended') {
+                getAvailableSites('{% url "services:suspended" %}');
+            } else if (buttonId == 'sites-working') {
+                getAvailableSites('{% url "services:riybtowl" %}');
 
+            } else {
+                if (buttonMobileId == '#sites-suspended') {
+                    getAvailableSites('{% url "services:suspended" %}');
+                } else if (buttonMobileId == '#sites-working') {
+                    getAvailableSites('{% url "services:riybtowl" %}');
+                }
+            }
         });
     });
 

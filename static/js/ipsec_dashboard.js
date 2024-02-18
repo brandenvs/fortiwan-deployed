@@ -102,11 +102,15 @@ function getAvailableSites(backend_url, callback) {
             // Hide spinner on success and display data
             $('#spinner').hide();       
             
-            console.log(responseData.interface);
-            buildSite(responseData);
-
-            _toast = alertMsg('Retrieval Success!', 'Displaying working sites.', 'success', 10000);
-            _toast.show();
+            console.log(responseData.count);
+            if (responseData.count == 0) {
+                _toast = alertMsg('Retrieval Success!', 'No sites with the selected filter.', 'info', 10000);
+              } else {
+                buildSite(responseData);
+                _toast = alertMsg('Retrieval Success!', 'Displaying sites.', 'success', 10000);
+              }
+              
+              _toast.show();
         },
         error: function () {
             // Handle errors

@@ -1,12 +1,13 @@
 # IMPORTS
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from services.models import APIUser
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -30,25 +31,35 @@ def authenticate_user(request):
         login(request, user)
         return HttpResponseRedirect(reverse('ipsec_dashboard:home'))
 
-@login_required
+# Define a test function to check if the user has is_staff set to True
+def is_staff_user(user):
+    return user.is_authenticated and user.is_staff
+
+@login_required(login_url='authentication:login')
+@user_passes_test(is_staff_user)
 def create_new_user(request):
     if request.method == 'POST':
         # Fetch User Details from Web Page
-        first_name = request.POST.get('firstname')
+        fullname = request.POST.get('fullname')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
+        full_name = str(fullname).split(' ')
+
+        first_name	= full_name.pop(0)
+        last_name = ' '.join(full_name)
+
         try:
             # Create a New User instance and Set Attributes
             new_user = User.objects.create_user(username=username, password=password)
             new_user.first_name = first_name
+            new_user.last_name = last_name
             new_user.is_staff = False
             new_user.is_superuser = False
 
             # Save User to Database
             new_user.save()
             # Redirect User to Profile
-            return HttpResponseRedirect(reverse('authentication:show_user'))   
+            return redirect('authentication:show_user')   
         
         # Catch the exception
         except Exception as ex:
@@ -58,7 +69,7 @@ def create_new_user(request):
     # Render Initial Create User View
     return render(request, 'create_user.html')
 
-@login_required
+@login_required(login_url='authentication:login')
 def create_user(request):
     # Render View
     return render(request, 'create_user.html')
