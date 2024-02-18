@@ -1,18 +1,28 @@
 # .gitignore
+
+
+## FILES ##
+
+# Variables
+.env
+
+# Robots
+robots.txt
+
+
+## FOLDERS ##
+
+# VSCode
+.vscode
+.vscode/
+
 # Virtual Environment
-.fortiwan_venv/
+.py_venv
+.py_venv/
 
 # Site Cache
-__pycache__/*
+__pycache__
+__pycache__/
+*__pycache__/
+/__pycache__/
 
-# Environmental Variables
-.env
-ipsec_dashboard/__pycache__/urls.cpython-310.pyc
-ipsec_dashboard/__pycache__/views.cpython-310.pyc
-
-services/__pycache__/fortiauthenticator_api_services.cpython-310.pyc
-services/__pycache__/models.cpython-310.pyc
-services/__pycache__/service_api.cpython-310.pyc
-services/__pycache__/urls.cpython-310.pyc
-services/__pycache__/views.cpython-310.pyc
-services/migrations/__pycache__/0002_delete_ipsecvpn_1.cpython-310.pyc
