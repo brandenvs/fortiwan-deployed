@@ -2,8 +2,7 @@
 
 ### Hello friends,
 
-I have decided to make a past project of mine public. Demonstrating my abilities and skills as an engineer, I aim to release this software publicly to test securities and other dynamics. 
-**Therefore, I encourage you to please accept your interaction.
+I have decided to make a past project of mine public. Demonstrating my abilities and skills as an engineer, I aim to release this software publicly to test securities and other dynamics. Please do provide input where you see fit; thanks in advance.
 
 ### Scope
 
