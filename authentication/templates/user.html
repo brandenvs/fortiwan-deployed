@@ -12,4 +12,7 @@
 <p class="fs-3 mb-0">Welcome Back {{ request.user.first_name|title }}! 
     <p class="fs-6 ms-4">You are logged in as {{ request.user.username }}.</p>
 </p>
+{% if user.is_staff  %}
+<a href="{% url 'authentication:create_user' %}">Create User</a>
+{% endif %}
 {% endblock %}
