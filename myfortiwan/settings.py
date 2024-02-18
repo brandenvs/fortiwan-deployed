@@ -17,6 +17,12 @@ CLIENT_ID = config('CLIENT_ID')
 
 ALLOWED_HOST = config('ALLOWED_HOST')
 
+PSQL_NAME = config('PSQL_NAME')
+PSQL_USERNAME = config('PSQL_USERNAME')
+PSQL_PASSWORD = config('PSQL_PASSWORD')
+PSQL_HOST = config('PSQL_HOST')
+PSQL_PORT = config('PSQL_PORT')
+
 allowed_base = ALLOWED_HOST
 allowed_https = f'https://{ALLOWED_HOST}'
 
@@ -91,11 +97,11 @@ WSGI_APPLICATION = 'myfortiwan.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'frankfurt_de',
-        'USER': 'brands',
-        'PASSWORD': '?yeaB3@BU$72u0&S',
-        'HOST': '54.37.74.171',
-        'PORT': '5432',
+        'NAME': PSQL_NAME,
+        'USER': PSQL_USERNAME,
+        'PASSWORD': PSQL_PASSWORD,
+        'HOST': PSQL_HOST,
+        'PORT': PSQL_PORT,
     }
 }
 

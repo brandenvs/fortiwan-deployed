@@ -14,5 +14,5 @@ urlpatterns = [
     # User profile
     path('show_user/', views.show_user, name='show_user'),    
     # Logout user
-    path('logout/', views.logout_user, name='logout')
+    path('logout/', views.logout_user, name='logout'),
 ]
