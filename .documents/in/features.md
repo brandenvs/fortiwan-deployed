@@ -14,17 +14,19 @@
 >
 > ---
 
-### This Suite includes the following features
+### Suite Feature List
 
 1. **Alternating WAN Interface**. Endpoints are hit with a PUT action which contains instructions to change the interface's provider. Useful for when one provider is offline. [FAST-STABLE](V1)
 
 2. **Direct-Support** where technicians lookup a specific serial number - **providing real-time support directly to the searched for site**. [STABLE](V1)
 
-3. **End-to-end** retrieval of _critical_ IPsec VPN Tunnel data in real-time. [STABLE](V1)
+3. **All Sites** and **Unavailable Sites**  are featured buttons that will load sites, respectively. (Both are now functional from V1.2)
 
 4. Bearer Token(APIUser objects) are dynamically handled based on a timed expiration of the token. **Refresher are used to refresh the Bearer Token**. [VULNERABLE](NO-CERTIFICATE)
 
 5. **Thread executed** api requests are pooled together and bulked data is retrieved. The data is deconstructed into dynamic and interactive panes describing a site connected or disconnected from the network. [FAST-STABLE](V1)
+
+6. **End-to-end** retrieval of _critical_ IPsec VPN Tunnel data in real-time. [STABLE](V1)
 
 ### Suite Compatibility Statement
 
