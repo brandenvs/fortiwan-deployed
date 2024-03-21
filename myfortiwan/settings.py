@@ -67,7 +67,7 @@ CSRF_TRUSTED_ORIGINS = ["https://fortiapi.bcfa.co.za/"]
 CSRF_COOKIE_SECURE = True
 
 # SSL Redirect
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = True
 
 ROOT_URLCONF = "myfortiwan.urls"
 
