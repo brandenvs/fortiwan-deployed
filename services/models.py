@@ -10,8 +10,6 @@ class APIUser(models.Model):
     token_type = models.CharField(max_length=255)
     scope = models.CharField(max_length=255)
     refresh_token = models.CharField(max_length=255)
-    message = models.CharField(max_length=255)
-    status = models.CharField(max_length=255)
 
 # Unavailable Site Model
 class UnavailableSite:
