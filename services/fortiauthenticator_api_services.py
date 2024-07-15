@@ -49,11 +49,11 @@ def get_apiuser(request):
 
     if none_flag:
         # Log a message and return 404 status if no APIUser is found
-        print(f'[Not Found] No API User Found for: {request.user.username}...\n')
+        # print(f'[Not Found] No API User Found for: {request.user.username}...\n')
         return 404
 
     # Log success and return the APIUser object
-    print('[SUCCESS] Found API User! -- USERNAME:', api_user.user.username, end='\n')
+    # print('[SUCCESS] Found API User! -- USERNAME:', api_user.user.username, end='\n')
     return api_user
 
 def has_expired(api_user):
