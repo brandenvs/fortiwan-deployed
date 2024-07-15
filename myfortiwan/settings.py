@@ -63,11 +63,11 @@ SESSION_COOKIE_SECURE = False
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF Tokenization
-# CSRF_TRUSTED_ORIGINS = ["https://fortiapi.bcfa.co.za/"] 
-# CSRF_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = ["https://fortiapi.bcfa.co.za/"] 
+CSRF_COOKIE_SECURE = False
 
 # SSL Redirect
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = True
 
 ROOT_URLCONF = "myfortiwan.urls"
 
