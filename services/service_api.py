@@ -155,8 +155,8 @@ def get_unavailable_sites(request, serial_data):
 def get_sites(request, serial_numbers):
     session = get_session(request)
 
-    # base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/'
-    base_url = 'https://BCFAFGMJHB253.bcfa.co.za/v1/fgt/'
+    base_url = 'https://euapi.fortigate.forticloud.com/forticloudapi/v1/fgt/'
+    # base_url = 'https://bcfafgmjhb253.bcfa.co.za/v1/fgt/'
 
     with tpe() as executor:
         # Pass additional arguments to the function using functools.partial

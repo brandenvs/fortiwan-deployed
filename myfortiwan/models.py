@@ -8,8 +8,6 @@ class APIUser:
         self.token_type = token_type
         self.scope = scope
         self.refresh_token = refresh_token
-        self.message = message
-        self.status = status
 
 # Firewall Model
 class Firewall:

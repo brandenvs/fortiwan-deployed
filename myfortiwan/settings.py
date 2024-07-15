@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 SECRET_KEY = "django-insecure-swr011w^(j!6%7-(9wouxt6r&5fpw(*63!2l193i1628#l@v85"
 
-DEBUG = False
+DEBUG = True
 
 CONFIG_PATH = os.path.join(BASE_DIR.parent, ".env")
 config._find_file(CONFIG_PATH)
@@ -56,18 +56,18 @@ MIDDLEWARE = [
 ]
 
 # Cookies
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 
 """APPLICATION SECURITY SETTINGS"""
 # CORS Policy
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF Tokenization
-CSRF_TRUSTED_ORIGINS = ["https://fortiapi.bcfa.co.za/"]
-CSRF_COOKIE_SECURE = True
+# CSRF_TRUSTED_ORIGINS = ["https://fortiapi.bcfa.co.za/"] 
+# CSRF_COOKIE_SECURE = False
 
 # SSL Redirect
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = "myfortiwan.urls"
 
@@ -141,7 +141,7 @@ STATICFILES_DIRS = [
 # Handle errors exclusively on Command Line(even in production, this is safe!)
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     # 'disable_existing_loggers': False,
     "filters": {
         "require_debug_false": {

@@ -248,8 +248,6 @@ def create_apiuser(request, response):
         token_type=auth_data['token_type'],
         scope=auth_data['scope'],
         refresh_token=auth_data['refresh_token'],
-        message=auth_data['message'],
-        status=auth_data['status']
     )
 
     # Remove existing APIUser objects for the current user (for testing purposes)
